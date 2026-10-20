@@ -1,25 +1,7 @@
 ---
-import { getEntry, render } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-
-const entry = await getEntry('about', 'me');
-if (!entry) throw new Error('Missing About Me content at src/content/about/me.mdx');
-const { Content } = await render(entry);
+import RedirectLayout from '../../layouts/RedirectLayout.astro';
+export const prerender = true;
+const destination = '/';
 ---
 
-<BaseLayout title={`${entry.data.title} — 蒋博睿`} description={entry.data.summary}>
-  <header class="page-head shell"><p class="page-kicker">About Me</p><h1><span class="page-title-icon" aria-hidden="true">◇</span>关于我</h1></header>
-  <section class="about-grid shell">
-    <div class="about-copy">
-      <Content />
-    </div>
-    <aside class="about-aside">
-      <strong>{entry.data.name}</strong>
-      <p>{entry.data.role}</p>
-      {(entry.data.email || entry.data.github) && <div class="about-links">
-        {entry.data.email && <a href={`mailto:${entry.data.email}`}>Email ↗</a>}
-        {entry.data.github && <a href={entry.data.github}>GitHub ↗</a>}
-      </div>}
-    </aside>
-  </section>
-</BaseLayout>
+<RedirectLayout destination={destination} linkLabel="前往首页" />

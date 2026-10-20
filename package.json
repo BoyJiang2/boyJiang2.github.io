@@ -16,8 +16,11 @@
     "astro": "^5.13.0",
     "katex": "^0.18.4",
     "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
-    "typescript": "^5.7.2"
+    "remark-parse": "^11.0.0",
+    "typescript": "^5.7.2",
+    "unified": "^11.0.5"
   },
   "dependencies": {
     "mermaid": "^11.17.2"

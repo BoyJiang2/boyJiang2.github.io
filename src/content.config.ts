@@ -35,15 +35,4 @@ const notes = defineCollection({
   }),
 });
 
-const about = defineCollection({
-  loader: glob({ base: './src/content/about', pattern: '**/*.{md,mdx}' }),
-  schema: z.object({
-    ...shared,
-    name: z.string(),
-    role: z.string(),
-    github: z.string().url().optional(),
-    email: z.string().email().optional(),
-  }),
-});
-
-export const collections = { blog, projects, notes, about };
+export const collections = { blog, projects, notes };

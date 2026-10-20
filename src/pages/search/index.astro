@@ -2,6 +2,7 @@
 import { blogHref, getPublishedBlogs, getPublishedNotes, getPublishedProjects, noteHref, projectHref } from '../../utils/content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getNoteLocation } from '../../utils/notes';
+import { toSearchText } from '../../utils/search';
 
 const blogs = await getPublishedBlogs();
 const projects = await getPublishedProjects();
@@ -15,7 +16,7 @@ const items = [
     kind: '博客',
     icon: '✦',
     detail: '',
-    search: [entry.data.title, entry.data.summary, ...entry.data.tags, entry.body].join(' ').toLowerCase(),
+    search: [entry.data.title, entry.data.summary, ...entry.data.tags, toSearchText(entry.body)].join(' ').toLowerCase(),
   })),
   ...projects.map((entry) => ({
     title: entry.data.title,
@@ -24,7 +25,7 @@ const items = [
     kind: '项目',
     icon: '◇',
     detail: '',
-    search: [entry.data.title, entry.data.summary, ...entry.data.tags, entry.body].join(' ').toLowerCase(),
+    search: [entry.data.title, entry.data.summary, ...entry.data.tags, toSearchText(entry.body)].join(' ').toLowerCase(),
   })),
   ...notes.map((entry) => {
     const location = getNoteLocation(entry);
@@ -35,7 +36,7 @@ const items = [
       kind: '笔记',
       icon: '☘',
       detail: [location.category, location.series].join(' · '),
-      search: [entry.data.title, entry.data.summary, location.category, location.series, ...entry.data.tags, entry.body].join(' ').toLowerCase(),
+      search: [entry.data.title, entry.data.summary, location.category, location.series, ...entry.data.tags, toSearchText(entry.body)].join(' ').toLowerCase(),
     };
   }),
 ].sort((a, b) => a.kind.localeCompare(b.kind, 'zh-CN') || a.title.localeCompare(b.title, 'zh-CN'));
@@ -81,10 +82,11 @@ const items = [
         clearResults();
         return;
       }
+      const terms = query.split(/\s+/);
 
       let visible = 0;
       results.forEach((result) => {
-        const matches = result.dataset.search.includes(query);
+        const matches = terms.every((term) => result.dataset.search.includes(term));
         result.hidden = !matches;
         if (matches) visible += 1;
       });
