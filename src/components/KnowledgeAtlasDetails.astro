@@ -1,0 +1,105 @@
+---
+import type { AtlasArea } from '../data/knowledge-atlas';
+import {
+  atlasAreaByKey, atlasDetails, atlasPapers, atlasShortTitle, atlasStages,
+  atlasTabs, atlasTierClass, atlasTools, atlasVerification,
+} from '../data/knowledge-atlas-details';
+
+interface Props { area: AtlasArea; initial: boolean }
+const { area, initial } = Astro.props;
+const k = area.key, d = atlasDetails[k];
+const methods = [...d.methods, ...(d.addon ? [d.addon] : [])];
+const methodNames = new Map(methods.map(m => [m.id, m.n]));
+const branchNames = new Map(d.tree.map(b => [b.id, b.n]));
+const paperRef = (id: string) => atlasPapers.get(id)!;
+---
+
+<section class="atlas-detail" id={`atlas-detail-${k}`} data-atlas-detail={k} hidden={!initial} aria-labelledby={`atlas-heading-${k}`}>
+  <header class="atlas-detail-header">
+    <p class="atlas-english">{area.english}</p>
+    <h2 id={`atlas-heading-${k}`} tabindex="-1">{area.title}</h2>
+    <p class="atlas-one">{area.summary}</p>
+  </header>
+  <div class="atlas-tabs" role="tablist" aria-label={`${area.title}详情`}>
+    {atlasTabs.map(([tab, label]) => <button type="button" role="tab" id={`atlas-tab-${k}-${tab}`} data-atlas-tab={tab} aria-selected={tab === 'ov'} tabindex={tab === 'ov' ? 0 : -1} aria-controls={`atlas-panel-${k}-${tab}`}>{label}</button>)}
+  </div>
+  <div class="atlas-panel" id={`atlas-panel-${k}-ov`} role="tabpanel" aria-labelledby={`atlas-tab-${k}-ov`} data-atlas-panel="ov" tabindex="0">
+    <div class="atlas-overview">
+      <div>
+        <h3>核心研究内容</h3>
+        <ul class="atlas-topics">{area.topics.map(topic => <li>{topic}</li>)}</ul>
+        <h3>当下热点</h3>
+        <div class="atlas-hot">{area.hot.map(topic => <span>{topic}</span>)}</div>
+        <h3>相邻方向</h3>
+        <div class="atlas-neighbors">{area.neighbors.map(key => <button type="button" data-atlas-go={key}>{atlasAreaByKey.get(key)!.title}</button>)}</div>
+      </div>
+      <div>
+        <h3>代表会议</h3>
+        <div class="atlas-confs">{area.conferences.map(({ name, tier, note }) => <div class="atlas-conf">
+          <span class={`atlas-tier ${atlasTierClass(tier)}`}>{tier}</span>
+          <button type="button" data-atlas-conf={name} aria-pressed="false">{name}</button>
+          <span class="atlas-conf-note">{note}</span>
+        </div>)}</div>
+        <h3>代表期刊</h3>
+        <div class="atlas-journals">{d.journals.map(([name, tier]) => <span><span class={`atlas-tier ${atlasTierClass(tier)}`}>{tier}</span> {name}</span>)}</div>
+        <p class="atlas-caption">会议分级沿用原图谱，投稿前请以 CCF 官方目录和会议官网为准。点击会议名可反查方向。</p>
+      </div>
+    </div>
+  </div>
+  <div class="atlas-panel" id={`atlas-panel-${k}-tree`} role="tabpanel" aria-labelledby={`atlas-tab-${k}-tree`} data-atlas-panel="tree" tabindex="0" hidden>
+    <p class="atlas-caption">子方向下列出具体课题、工具和文献；交叉标签可跳到相邻方向。</p>
+    <div class="atlas-tree">{d.tree.map(b => <details class="atlas-branch" id={`atlas-branch-${k}-${b.id}`} tabindex="-1" open>
+      <summary><strong>{b.n}</strong><span>{b.en}</span></summary>
+      <div class="atlas-branch-body">
+        <p>{b.d}</p>
+        <ul class="atlas-topics">{b.l.map(([label, cross]) => <li>{label}{cross && <button type="button" class="atlas-text-button" data-atlas-go={cross}>交叉 → {atlasAreaByKey.get(cross)!.title}</button>}</li>)}</ul>
+        {b.tools.length > 0 && <div class="atlas-refs"><span>工具</span>{b.tools.map(id => <button type="button" data-atlas-tool={id}>{atlasTools[id].n}</button>)}</div>}
+        {b.papers.length > 0 && <div class="atlas-refs"><span>文献</span>{b.papers.map(id => <button type="button" data-atlas-paper={id} data-atlas-owner={paperRef(id).area}>{atlasShortTitle(paperRef(id).t)} · {paperRef(id).yr}</button>)}</div>}
+      </div>
+    </details>)}</div>
+  </div>
+  <div class="atlas-panel" id={`atlas-panel-${k}-tools`} role="tabpanel" aria-labelledby={`atlas-tab-${k}-tools`} data-atlas-panel="tools" tabindex="0" hidden>
+    <p class="atlas-caption">研究结论依赖实验方法。点击方法筛选对应工具；再次点击可显示全部。</p>
+    <div class="atlas-methods">{methods.map(m => <button type="button" class="atlas-method" id={`atlas-method-${k}-${m.id}`} data-atlas-method={m.id} aria-pressed="false">
+      <strong>{m.n}</strong><span>{m.eg}</span><span>＋ {m.pro}</span><span>− {m.con}</span>
+    </button>)}</div>
+    <p class="atlas-caption" data-atlas-filter-hint hidden>正在显示「<span data-atlas-filter-name></span>」的工具，<button type="button" class="atlas-text-button" data-atlas-filter-clear>显示全部</button></p>
+    <p class="atlas-caption" data-atlas-filter-empty hidden>这种方法没有收录专门的工具，通常依靠论文中的自研平台。</p>
+    <div class="atlas-tools">{d.tools.map(([id, method]) => {
+      const t = atlasTools[id];
+      return <article class="atlas-tool" id={`atlas-tool-${k}-${id}`} data-atlas-tool-card={id} data-atlas-tool-method={method} tabindex="-1">
+        <header><h4>{t.n}</h4><span>{methodNames.get(method)}</span></header>
+        <dl class="atlas-fields">
+          <dt>适用任务</dt><dd>{t.use}</dd><dt>能模拟 / 测量</dt><dd>{t.can}</dd>
+          <dt>局限</dt><dd>{t.lim}</dd><dt>常见验证</dt><dd>{t.val}</dd>
+        </dl>
+        <div class="atlas-sources">
+          <span class={`atlas-verification atlas-verification-${t.v}`} title={`原图谱标注：${atlasVerification[t.v][1]}`}>{atlasVerification[t.v][0]}</span>
+          {t.src.map(([label, url]) => <a href={url} target="_blank" rel="noopener noreferrer">{label} ↗</a>)}
+          {t.vn && <span class="atlas-caption">{t.vn}</span>}
+        </div>
+      </article>;
+    })}</div>
+    <p class="atlas-caption">工具核实标签沿用原图谱；能力与版本请以官方文档为准。</p>
+  </div>
+  <div class="atlas-panel" id={`atlas-panel-${k}-papers`} role="tabpanel" aria-labelledby={`atlas-tab-${k}-papers`} data-atlas-panel="papers" tabindex="0" hidden>
+    <div class="atlas-starter">
+      <div><h3>入门课程</h3><ul class="atlas-topics">{d.start.courses.map(([title, url], i) => <li id={`atlas-course-${k}-${i}`} tabindex="-1">{url ? <a href={url} target="_blank" rel="noopener noreferrer">{title}</a> : title}</li>)}</ul></div>
+      <div><h3>第一个动手项目</h3><p id={`atlas-project-${k}`} tabindex="-1">{d.start.project}</p></div>
+    </div>
+    <p class="atlas-caption">精选文献，按阶段与年份排列；详见原文。</p>
+    <div class="atlas-route">{d.papers.map((p, i) => <>
+      {(i === 0 || d.papers[i - 1].st !== p.st) && <h3 class="atlas-route-stage">{atlasStages[p.st]}</h3>}
+      <article class="atlas-paper" id={`atlas-paper-${k}-${p.id}`} data-atlas-paper-card={p.id} tabindex="-1">
+        <div class="atlas-paper-meta"><span class={`atlas-stage atlas-stage-${p.st}`}>{atlasStages[p.st]}</span><span>{branchNames.get(p.br)}</span><span class={`atlas-tier ${atlasTierClass(p.tier)}`} title={p.tier === '—' ? '本条未补充分级，不代表未列入 CCF。' : undefined}>{p.tier}</span><span>{p.ve} {p.yr}</span></div>
+        <h4>{p.t}</h4><p class="atlas-authors">{p.au}</p>
+        <dl class="atlas-fields"><dt>研究问题</dt><dd>{p.q}</dd><dt>核心贡献</dt><dd>{p.c}</dd><dt>为什么读</dt><dd>{p.why}</dd><dt>读完应掌握</dt><dd>{p.learn}</dd></dl>
+        <footer>
+          {d.papers[i + 1] ? <span>下一篇：<button type="button" class="atlas-text-button" data-atlas-paper={d.papers[i + 1].id} data-atlas-owner={k}>{atlasShortTitle(d.papers[i + 1].t)}</button></span> : <span>接着看 <button type="button" class="atlas-text-button" data-atlas-go={d.after}>{atlasAreaByKey.get(d.after)!.title}</button></span>}
+          <a href={p.src} target="_blank" rel="noopener noreferrer">原文 / 出处 ↗</a>
+        </footer>
+      </article>
+    </>)}</div>
+    <p class="atlas-caption" title="— 表示本条未补充分级，不代表会议 / 期刊未列入 CCF；期刊、非 CS 等原有标注不等同于 CCF 等级。">分级仅供参考，以官方目录为准。</p>
+  </div>
+</section>
