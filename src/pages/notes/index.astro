@@ -1,8 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
+import { getPublishedNotes, noteHref } from '../../utils/content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import EntryRow from '../../components/EntryRow.astro';
 import { getNoteLocation } from '../../utils/notes';
-const entries = (await getCollection('notes')).filter((entry) => entry.data.published && getNoteLocation(entry).category === '论文').sort((a, b) => a.id.localeCompare(b.id, 'zh-CN'));
+const entries = await getPublishedNotes();
 const categories = ['全部', ...new Set(entries.map((entry) => getNoteLocation(entry).category))];
 ---
 
@@ -19,11 +20,7 @@ const categories = ['全部', ...new Set(entries.map((entry) => getNoteLocation(
       {entries.map((entry) => {
         const location = getNoteLocation(entry);
         return (
-          <article class="entry-row note-filter-item" data-category={location.category}>
-            <div class="entry-meta"><span>{location.category}</span><small>{location.series}</small></div>
-            <div class="entry-body"><h3><a href={`/notes/${location.slug}/`}>{entry.data.title}</a></h3><p>{entry.data.summary}</p><div class="tag-line">{entry.data.tags.map((tag) => <span>#{tag}</span>)}</div></div>
-            <a class="entry-arrow" href={`/notes/${location.slug}/`} aria-label={`阅读 ${entry.data.title}`}>↗</a>
-          </article>
+          <EntryRow class="note-filter-item" data-category={location.category} href={noteHref(entry)} eyebrow={location.category} meta={location.series} title={entry.data.title} summary={entry.data.summary} tags={entry.data.tags} />
         );
       })}
     </div> : <div class="empty-state">笔记正在整理，暂不公开。</div>}

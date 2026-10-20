@@ -1,14 +1,8 @@
 ---
+import type { CollectionEntry } from 'astro:content';
+
 interface Props {
-  entry: {
-    id: string;
-    data: {
-      title: string;
-      summary: string;
-      tags: string[];
-      github: string;
-    };
-  };
+  entry: CollectionEntry<'projects'>;
   index?: number;
 }
 const { entry, index = 0 } = Astro.props;

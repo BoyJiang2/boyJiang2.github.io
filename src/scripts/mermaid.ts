@@ -1,11 +1,8 @@
-const darkThemes = new Set(['professional-dark', 'pure-black']);
-
 const configureMermaid = (mermaid: Awaited<ReturnType<typeof importMermaid>>) => {
-  const theme = document.documentElement.dataset.theme ?? 'pure-white';
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
-    theme: darkThemes.has(theme) ? 'dark' : 'neutral',
+    theme: document.documentElement.dataset.scheme === 'dark' ? 'dark' : 'neutral',
     fontFamily: getComputedStyle(document.body).fontFamily,
     flowchart: { useMaxWidth: true, htmlLabels: true },
   });

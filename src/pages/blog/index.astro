@@ -1,16 +1,7 @@
 ---
+import RedirectLayout from '../../layouts/RedirectLayout.astro';
 export const prerender = true;
 const destination = '/blogs/';
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <title>Boy Jiang</title>
-    <meta http-equiv="refresh" content={`0;url=${destination}`} />
-    <meta name="robots" content="noindex" />
-    <link rel="canonical" href={new URL(destination, Astro.site ?? Astro.url)} />
-  </head>
-  <body><a href={destination}>前往博客</a></body>
-</html>
+<RedirectLayout destination={destination} linkLabel="前往博客" />

@@ -1,19 +1,23 @@
 ---
-interface Props {
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'article'> {
   href: string;
   eyebrow?: string;
+  meta?: string;
   title: string;
   summary: string;
   tags?: string[];
 }
 
-const { href, eyebrow, title, summary, tags = [] } = Astro.props;
-const hasMeta = Boolean(eyebrow);
+const { href, eyebrow, meta, title, summary, tags = [], class: className, ...attributes } = Astro.props;
+const hasMeta = Boolean(eyebrow || meta);
 ---
 
-<article class:list={['entry-row', !hasMeta && 'compact']}>
+<article {...attributes} class:list={['entry-row', !hasMeta && 'compact', className]}>
   {hasMeta && <div class="entry-meta">
     {eyebrow && <span>{eyebrow}</span>}
+    {meta && <small>{meta}</small>}
   </div>}
   <div class="entry-body">
     <h3><a href={href}>{title}</a></h3>

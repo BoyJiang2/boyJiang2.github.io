@@ -1,53 +1,19 @@
 ---
-import { getCollection, render } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleIndex from '../../components/ArticleIndex.astro';
-import { getNoteLocation } from '../../utils/notes';
+import { render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { getPublishedNotes } from '../../utils/content';
+import { buildNoteTree, getNoteLocation } from '../../utils/notes';
 import { getArticleWordCount } from '../../utils/article-meta';
 export async function getStaticPaths() {
-  const entries = (await getCollection('notes')).filter((entry) => entry.data.published && getNoteLocation(entry).category === '论文');
-  return entries.map((entry) => ({ params: { slug: entry.id.split('/').at(-1) }, props: { entry, entries } }));
+  const entries = await getPublishedNotes();
+  return entries.map((entry) => ({ params: { slug: getNoteLocation(entry).slug }, props: { entry, entries } }));
 }
 const { entry, entries } = Astro.props;
 const { Content, headings } = await render(entry);
-const sorted = [...entries].sort((a, b) => a.id.localeCompare(b.id, 'zh-CN'));
-const categoryIcons: Record<string, string> = { '课程': '▤', '论文': '◈', '技术': '⌘', '工具': '✺' };
-const currentLocation = getNoteLocation(entry);
 const wordCount = getArticleWordCount(entry.body);
-const categories = [...new Set(sorted.map((item) => getNoteLocation(item).category))];
-const tree = categories.map((category) => {
-  const categoryEntries = sorted.filter((item) => getNoteLocation(item).category === category);
-  const seriesNames = [...new Set(categoryEntries.map((item) => getNoteLocation(item).series))];
-  const children = seriesNames.map((series) => {
-    const items = categoryEntries.filter((item) => getNoteLocation(item).series === series).map((item) => ({
-      label: item.data.title,
-      href: `/notes/${getNoteLocation(item).slug}/`,
-      current: item.id === entry.id,
-    }));
-    return { label: series, children: items, open: items.some((item) => item.current) };
-  });
-  return { label: category, icon: categoryIcons[category] ?? '•', children, open: category === currentLocation.category };
-});
+const tree = buildNoteTree(entries, entry.id);
 ---
 
-<BaseLayout title={`${entry.data.title} — 笔记`} description={entry.data.summary}>
-  <article class="article-wrap reading-article">
-    <a class="article-back" href="/notes/">← 返回笔记</a>
-    <header class="article-header">
-      <h1>{entry.data.title}</h1>
-      <p>{entry.data.summary}</p>
-      <div class="article-byline">
-        {entry.data.tags.length > 0 && <span>{entry.data.tags.join(' · ')}</span>}
-        <span>{wordCount} 字</span>
-      </div>
-    </header>
-    <div class="reading-layout">
-      <ArticleIndex
-        collectionLabel="浏览全部笔记"
-        tree={tree}
-        headings={headings}
-      />
-      <div class="prose"><Content /></div>
-    </div>
-  </article>
-</BaseLayout>
+<ArticleLayout documentTitle={`${entry.data.title} — 笔记`} description={entry.data.summary} title={entry.data.title} summary={entry.data.summary} backHref="/notes/" backLabel="← 返回笔记" tags={entry.data.tags} wordCount={wordCount} variant="reading" collectionLabel="浏览全部笔记" tree={tree} headings={headings}>
+  <Content />
+</ArticleLayout>

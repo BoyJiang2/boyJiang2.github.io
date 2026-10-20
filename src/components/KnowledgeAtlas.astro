@@ -1,11 +1,13 @@
 ---
 import { atlasAreas, atlasLayers } from '../data/knowledge-atlas';
 
-const initial = atlasAreas.find((area) => area.k === 'mlsys')!;
-const ordered = ['hw', 'sw', 'scale', 'apps', 'rail'].flatMap((layer) => atlasAreas.filter((area) => area.L === layer));
-const numberOf = (key: string) => String(ordered.findIndex((area) => area.k === key) + 1).padStart(2, '0');
+const initial = atlasAreas.find((area) => area.key === 'mlsys')!;
+const ordered = ['hw', 'sw', 'scale', 'apps', 'rail'].flatMap((layer) => atlasAreas.filter((area) => area.layer === layer));
+const numberOf = (key: string) => String(ordered.findIndex((area) => area.key === key) + 1).padStart(2, '0');
+const railAreas = atlasAreas.filter((area) => area.layer === 'rail');
+const railNumbers = railAreas.map((area) => numberOf(area.key));
 const conferences = new Map<string, { tier: string; count: number }>();
-atlasAreas.forEach((area) => area.confs.forEach(([name, tier]) => {
+atlasAreas.forEach((area) => area.conferences.forEach(({ name, tier }) => {
   const conference = conferences.get(name);
   conferences.set(name, { tier, count: (conference?.count ?? 0) + 1 });
 }));
@@ -14,7 +16,7 @@ const tiers = ['A', 'B', 'C', '—'];
 
 <div class="knowledge-atlas" data-knowledge-atlas>
   <div class="atlas-intro">
-    <p class="atlas-eyebrow">Architecture & Systems · 15 Directions</p>
+    <p class="atlas-eyebrow">Architecture & Systems · {atlasAreas.length} Directions</p>
     <p>把整个领域当成一块芯片来看：四层系统栈从硬件延伸到应用，右侧三个横切方向贯穿全栈。点击模块探索研究内容和相邻方向，也可以按会议名称反查。</p>
   </div>
 
@@ -32,30 +34,33 @@ const tiers = ['A', 'B', 'C', '—'];
     <div class="atlas-grid">
       <div class="atlas-layers">
         {atlasLayers.map((layer) => <div class="atlas-layer">
-          <div class="atlas-layer-name"><b>{layer.layer}</b><span>{layer.sub}</span></div>
+          <div class="atlas-layer-name"><b>{layer.title}</b><span>{layer.subtitle}</span></div>
           <div class="atlas-cells">
-            {atlasAreas.filter((area) => area.L === layer.id).map((area) => <button
+            {atlasAreas.filter((area) => area.layer === layer.key).map((area) => <button
               type="button"
-              class:list={['atlas-cell', { 'is-selected': area.k === initial.k, 'is-near': initial.near.includes(area.k) }]}
-              data-atlas-area={area.k}
-              aria-pressed={area.k === initial.k}
-              aria-controls="atlas-detail"
-              aria-label={area.t}
+              class:list={['atlas-cell', { 'is-selected': area.key === initial.key, 'is-near': initial.neighbors.includes(area.key) }]}
+              data-atlas-area={area.key}
+              data-atlas-title={area.title}
+              data-atlas-conferences={JSON.stringify(area.conferences.map(({ name }) => name))}
+              data-atlas-neighbors={JSON.stringify(area.neighbors)}
+              aria-pressed={area.key === initial.key}
+              aria-controls={`atlas-detail-${area.key}`}
+              aria-label={area.title}
             >
-              <span class="atlas-number">{numberOf(area.k)}</span>
-              <span class="atlas-cell-title">{area.t}</span>
-              <span class="atlas-cell-conferences">{area.confs.slice(0, 2).map(([name]) => name).join(' · ')}</span>
+              <span class="atlas-number">{numberOf(area.key)}</span>
+              <span class="atlas-cell-title">{area.title}</span>
+              <span class="atlas-cell-conferences">{area.conferences.slice(0, 2).map(({ name }) => name).join(' · ')}</span>
             </button>)}
           </div>
         </div>)}
       </div>
       <div class="atlas-railbox">
         <div class="atlas-rails">
-          {atlasAreas.filter((area) => area.L === 'rail').map((area) => <button type="button" class="atlas-cell atlas-rail" data-atlas-area={area.k} aria-label={area.t} aria-pressed="false" aria-controls="atlas-detail">
-            <span class="atlas-number">{numberOf(area.k)}</span><span class="atlas-cell-title">{area.t}</span>
+          {railAreas.map((area) => <button type="button" class="atlas-cell atlas-rail" data-atlas-area={area.key} data-atlas-title={area.title} data-atlas-conferences={JSON.stringify(area.conferences.map(({ name }) => name))} data-atlas-neighbors={JSON.stringify(area.neighbors)} aria-label={area.title} aria-pressed="false" aria-controls={`atlas-detail-${area.key}`}>
+            <span class="atlas-number">{numberOf(area.key)}</span><span class="atlas-cell-title">{area.title}</span>
           </button>)}
         </div>
-        <p class="atlas-rail-caption">13–15 · 横切方向<br />贯穿全栈</p>
+        <p class="atlas-rail-caption">{railNumbers.at(0)}–{railNumbers.at(-1)} · 横切方向<br />贯穿全栈</p>
       </div>
     </div>
     <div class="atlas-legend" aria-label="图例">
@@ -67,28 +72,30 @@ const tiers = ['A', 'B', 'C', '—'];
 
   <noscript><p>交互探索需要启用 JavaScript；下方仍可阅读默认 MLSys 方向及会议总览。</p></noscript>
 
-  <section class="atlas-detail" id="atlas-detail" data-atlas-detail aria-live="polite" aria-atomic="true" aria-label="MLSys 方向详情">
-    <div>
-      <p class="atlas-english">{initial.en}</p>
-      <h2>{initial.t}</h2>
-      <p class="atlas-one">{initial.one}</p>
-      <h3>核心研究内容</h3>
-      <ul class="atlas-topics">{initial.topics.map((topic) => <li>{topic}</li>)}</ul>
-      <h3>当下热点</h3>
-      <div class="atlas-hot">{initial.hot.map((topic) => <span>{topic}</span>)}</div>
-    </div>
-    <div>
-      <h3>代表会议</h3>
-      <div class="atlas-confs">{initial.confs.map(([name, tier, note]) => <div class="atlas-conf">
-        <span class={`atlas-tier atlas-tier-${tier === '—' ? 'none' : tier}`}>{tier}</span>
-        <button type="button" data-atlas-conf={name}>{name}</button>
-        <span class="atlas-conf-note">{note}</span>
-      </div>)}</div>
-      <p class="atlas-caption">会议分级沿用原图谱，投稿前请以 CCF 官方目录和会议官网为准。点击会议名可反查方向。</p>
-      <h3>相邻方向</h3>
-      <div class="atlas-neighbors">{initial.near.map((key) => <button type="button" data-atlas-go={key}>{atlasAreas.find((area) => area.k === key)!.t}</button>)}</div>
-    </div>
-  </section>
+  <div id="atlas-detail" aria-live="polite" aria-atomic="true">
+    {atlasAreas.map((area) => <section class="atlas-detail" id={`atlas-detail-${area.key}`} data-atlas-detail hidden={area.key !== initial.key} aria-label={`${area.title} 方向详情`}>
+      <div>
+        <p class="atlas-english">{area.english}</p>
+        <h2>{area.title}</h2>
+        <p class="atlas-one">{area.summary}</p>
+        <h3>核心研究内容</h3>
+        <ul class="atlas-topics">{area.topics.map((topic) => <li>{topic}</li>)}</ul>
+        <h3>当下热点</h3>
+        <div class="atlas-hot">{area.hot.map((topic) => <span>{topic}</span>)}</div>
+      </div>
+      <div>
+        <h3>代表会议</h3>
+        <div class="atlas-confs">{area.conferences.map(({ name, tier, note }) => <div class="atlas-conf">
+          <span class={`atlas-tier atlas-tier-${tier === '—' ? 'none' : tier}`}>{tier}</span>
+          <button type="button" data-atlas-conf={name}>{name}</button>
+          <span class="atlas-conf-note">{note}</span>
+        </div>)}</div>
+        <p class="atlas-caption">会议分级沿用原图谱，投稿前请以 CCF 官方目录和会议官网为准。点击会议名可反查方向。</p>
+        <h3>相邻方向</h3>
+        <div class="atlas-neighbors">{area.neighbors.map((key) => <button type="button" data-atlas-go={key}>{atlasAreas.find((neighbor) => neighbor.key === key)!.title}</button>)}</div>
+      </div>
+    </section>)}
+  </div>
 
   <section class="atlas-catalog" aria-label="会议总览">
     <h2>本图谱收录的会议</h2>
@@ -105,34 +112,39 @@ const tiers = ['A', 'B', 'C', '—'];
 </div>
 
 <script>
-  import { atlasAreas } from '../data/knowledge-atlas';
-
   const root = document.querySelector<HTMLElement>('[data-knowledge-atlas]');
   if (root) {
-    const byKey = new Map(atlasAreas.map((area) => [area.k, area]));
     const cards = [...root.querySelectorAll<HTMLButtonElement>('[data-atlas-area]')];
+    const areas = cards.map((card) => ({
+      key: card.dataset.atlasArea!,
+      title: card.dataset.atlasTitle!,
+      conferences: JSON.parse(card.dataset.atlasConferences!) as string[],
+      neighbors: JSON.parse(card.dataset.atlasNeighbors!) as string[],
+      card,
+      panel: root.querySelector<HTMLElement>(`#${card.getAttribute('aria-controls')}`)!,
+    }));
+    const byKey = new Map(areas.map((area) => [area.key, area]));
     const input = root.querySelector<HTMLInputElement>('[data-atlas-query]')!;
     const clear = root.querySelector<HTMLButtonElement>('[data-atlas-clear]')!;
     const feedback = root.querySelector<HTMLElement>('[data-atlas-match]')!;
-    const detail = root.querySelector<HTMLElement>('[data-atlas-detail]')!;
-    const escape = (value: string) => value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]!));
+    const conferenceButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-atlas-conf], [data-atlas-quick]')];
     const scrollBehavior = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' as const : 'smooth' as const;
 
     const lookup = (exact = false) => {
       const query = input.value.trim().toLowerCase();
-      const hits = atlasAreas.filter((area) => area.confs.some(([name]) => exact ? name.toLowerCase() === query : name.toLowerCase().includes(query)));
-      const hitKeys = new Set(hits.map((area) => area.k));
+      const hits = areas.filter((area) => area.conferences.some((name) => exact ? name.toLowerCase() === query : name.toLowerCase().includes(query)));
+      const hitKeys = new Set(hits.map((area) => area.key));
       cards.forEach((card) => {
         card.classList.toggle('is-match', !!query && hitKeys.has(card.dataset.atlasArea!));
         card.classList.toggle('is-dim', !!query && !hitKeys.has(card.dataset.atlasArea!));
       });
-      root.querySelectorAll<HTMLButtonElement>('[data-atlas-conf], [data-atlas-quick]').forEach((button) => {
+      conferenceButtons.forEach((button) => {
         const selected = !!query && (button.dataset.atlasConf ?? button.dataset.atlasQuick)?.toLowerCase() === query;
         button.classList.toggle('is-match', selected);
         button.setAttribute('aria-pressed', String(selected));
       });
       clear.hidden = !query;
-      feedback.textContent = !query ? '' : hits.length ? `「${input.value.trim()}」出现在 ${hits.length} 个方向：${hits.map((area) => area.t).join('、')}` : `没有找到「${input.value.trim()}」对应的会议，试试 OSDI、ISCA 或 ASPLOS。`;
+      feedback.textContent = !query ? '' : hits.length ? `「${input.value.trim()}」出现在 ${hits.length} 个方向：${hits.map((area) => area.title).join('、')}` : `没有找到「${input.value.trim()}」对应的会议，试试 OSDI、ISCA 或 ASPLOS。`;
     };
 
     const select = (key: string, scroll = false) => {
@@ -141,30 +153,13 @@ const tiers = ['A', 'B', 'C', '—'];
       cards.forEach((card) => {
         const selected = card.dataset.atlasArea === key;
         card.classList.toggle('is-selected', selected);
-        card.classList.toggle('is-near', !selected && area.near.includes(card.dataset.atlasArea!));
+        card.classList.toggle('is-near', !selected && area.neighbors.includes(card.dataset.atlasArea!));
         card.setAttribute('aria-pressed', String(selected));
       });
-      detail.setAttribute('aria-label', `${area.t} 方向详情`);
-      detail.innerHTML = `
-        <div>
-          <p class="atlas-english">${escape(area.en)}</p>
-          <h2>${escape(area.t)}</h2>
-          <p class="atlas-one">${escape(area.one)}</p>
-          <h3>核心研究内容</h3>
-          <ul class="atlas-topics">${area.topics.map((topic) => `<li>${escape(topic)}</li>`).join('')}</ul>
-          <h3>当下热点</h3>
-          <div class="atlas-hot">${area.hot.map((topic) => `<span>${escape(topic)}</span>`).join('')}</div>
-        </div>
-        <div>
-          <h3>代表会议</h3>
-          <div class="atlas-confs">${area.confs.map(([name, tier, note]) => `<div class="atlas-conf"><span class="atlas-tier atlas-tier-${tier === '—' ? 'none' : tier}">${escape(tier)}</span><button type="button" data-atlas-conf="${escape(name)}">${escape(name)}</button><span class="atlas-conf-note">${escape(note)}</span></div>`).join('')}</div>
-          <p class="atlas-caption">会议分级沿用原图谱，投稿前请以 CCF 官方目录和会议官网为准。点击会议名可反查方向。</p>
-          <h3>相邻方向</h3>
-          <div class="atlas-neighbors">${area.near.map((neighbor) => `<button type="button" data-atlas-go="${escape(neighbor)}">${escape(byKey.get(neighbor)!.t)}</button>`).join('')}</div>
-        </div>`;
+      areas.forEach((item) => { item.panel.hidden = item.key !== key; });
       lookup();
       try { localStorage.setItem('boy-jiang-atlas-selection', key); } catch {}
-      if (scroll) detail.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+      if (scroll) area.panel.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
     };
 
     root.addEventListener('click', (event) => {
@@ -195,11 +190,8 @@ const tiers = ['A', 'B', 'C', '—'];
 </script>
 
 <style is:global>
-  .interactive-article { width: min(1180px, calc(100% - 48px)); }
-  .interactive-article .article-header { max-width: 960px; }
-  .interactive-article .article-header h1 { font-size: clamp(2rem, 4.2vw, 3.5rem); line-height: 1.3; letter-spacing: -.03em; }
   .knowledge-atlas { --atlas-copper: #985b25; --atlas-trace: #2f6f8f; --atlas-highlight: #fff2bb; --atlas-selected: color-mix(in srgb, var(--atlas-copper) 13%, var(--surface)); --atlas-near: color-mix(in srgb, var(--atlas-trace) 11%, var(--surface)); color: var(--ink); font-family: var(--sans); line-height: 1.65; display: flex; flex-direction: column; gap: 22px; }
-  [data-theme='professional-dark'] .knowledge-atlas, [data-theme='pure-black'] .knowledge-atlas { --atlas-copper: #e3a061; --atlas-trace: #80bfdc; --atlas-highlight: #4a3f12; }
+  [data-scheme='dark'] .knowledge-atlas { --atlas-copper: #e3a061; --atlas-trace: #80bfdc; --atlas-highlight: #4a3f12; }
   .knowledge-atlas p { margin: 0; }
   .knowledge-atlas button, .knowledge-atlas input { font: inherit; }
   .knowledge-atlas button { cursor: pointer; color: var(--ink); }
@@ -241,6 +233,7 @@ const tiers = ['A', 'B', 'C', '—'];
   .knowledge-atlas .atlas-near-key { background: var(--atlas-near); border-color: var(--atlas-trace); }
   .knowledge-atlas .atlas-match-key { background: var(--atlas-highlight); }
   .knowledge-atlas .atlas-detail { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 36px; margin-top: 10px; padding-top: 24px; border-top: 2px solid var(--atlas-copper); scroll-margin-top: 30px; }
+  .knowledge-atlas .atlas-detail[hidden] { display: none; }
   .knowledge-atlas .atlas-english { color: var(--atlas-copper); font: .73rem/1.6 var(--mono); overflow-wrap: anywhere; }
   .knowledge-atlas .atlas-detail h2 { margin: 5px 0 10px; font: 600 clamp(1.4rem, 3vw, 2rem)/1.4 var(--serif); }
   .knowledge-atlas .atlas-one { color: var(--body-ink); font-size: .95rem; }
@@ -273,7 +266,6 @@ const tiers = ['A', 'B', 'C', '—'];
   .knowledge-atlas .atlas-chips button:hover { border-color: var(--atlas-trace); }
   .knowledge-atlas .atlas-chips button.is-match, .knowledge-atlas .atlas-quick button.is-match { background: var(--atlas-highlight); border-color: var(--atlas-copper); color: var(--ink); }
   @media (max-width: 760px) {
-    .interactive-article { width: calc(100% - 30px); }
     .knowledge-atlas .atlas-grid { grid-template-columns: minmax(0, 1fr); }
     .knowledge-atlas .atlas-layer { grid-template-columns: minmax(0, 1fr); gap: 8px; }
     .knowledge-atlas .atlas-layer-name { flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 8px; padding-bottom: 4px; border-right: 0; border-bottom: 1px solid var(--line); }

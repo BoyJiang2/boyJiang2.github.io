@@ -1,0 +1,48 @@
+---
+import type { MarkdownHeading } from 'astro';
+import BaseLayout from './BaseLayout.astro';
+import ArticleIndex from '../components/ArticleIndex.astro';
+import type { TreeNode } from '../components/ContentTree.astro';
+import 'katex/dist/katex.min.css';
+
+interface Props {
+  documentTitle: string;
+  description: string;
+  title: string;
+  summary: string;
+  backHref: string;
+  backLabel: string;
+  kicker?: string;
+  tags: string[];
+  wordCount?: number;
+  variant: 'reading' | 'wide' | 'plain';
+  collectionLabel?: string;
+  tree?: TreeNode[];
+  headings?: MarkdownHeading[];
+}
+
+const {
+  documentTitle, description, title, summary, backHref, backLabel, kicker, tags, wordCount,
+  variant, collectionLabel = '', tree = [], headings = [],
+} = Astro.props;
+---
+
+<BaseLayout title={documentTitle} description={description}>
+  <article class:list={['article-wrap', variant === 'wide' && 'interactive-article', variant === 'reading' && 'reading-article']}>
+    <a class="article-back" href={backHref}>{backLabel}</a>
+    <header class="article-header">
+      {kicker && <p class="page-kicker">{kicker}</p>}
+      <h1>{title}</h1>
+      <p>{summary}</p>
+      <div class="article-byline">
+        {tags.length > 0 && <span>{tags.join(' · ')}</span>}
+        {wordCount !== undefined && <span>{wordCount} 字</span>}
+      </div>
+      <slot name="header-actions" />
+    </header>
+    {variant === 'wide' ? <slot /> : variant === 'reading' ? <div class="reading-layout">
+      <ArticleIndex collectionLabel={collectionLabel} tree={tree} headings={headings} />
+      <div class="prose"><slot /></div>
+    </div> : <div class="plain-article-layout"><div class="prose"><slot /></div></div>}
+  </article>
+</BaseLayout>

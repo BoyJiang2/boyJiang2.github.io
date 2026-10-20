@@ -11,9 +11,10 @@ npm install
 npm run dev
 ```
 
-构建静态页面：
+检查类型并构建静态页面：
 
 ```bash
+npm run check
 npm run build
 ```
 
@@ -35,7 +36,7 @@ src/content/
 src/content/notes/论文/Transformer 经典论文/attention-is-all-you-need.md
 ```
 
-每篇 Markdown 顶部只需要三个字段：
+博客和笔记常用的 frontmatter：
 
 ```yaml
 ---
@@ -45,7 +46,9 @@ tags: [Transformer, Attention]
 ---
 ```
 
-- 文件放进内容目录后会直接公开。
+- 博客默认不公开，需要设置 `published: true`；笔记和项目默认公开，可用 `published: false` 隐藏。
+- 目前只列出 `src/content/notes/论文/` 下的笔记，范围由 `src/utils/content.ts` 中的 `PUBLIC_NOTE_CATEGORIES` 控制。
+- 博客可选 `wide: true`，用于知识图谱这类交互式 MDX 文章；默认是 `false`。
 - 列表和索引按文件夹路径与标题自动排序。
 - 正文中的 `## / ### / ####` 会自动生成文章目录。
 - 公式、代码、引用、表格和图片示例见 `src/content/notes/技术/Markdown 写作手册/markdown-capabilities-demo.md`。
@@ -88,13 +91,15 @@ github: https://github.com/your-name/my-project
 ---
 ```
 
-3. 本地构建通过后提交并推送；已连接的 Cloudflare 会随 `main` 分支更新自动部署：
+3. 本地检查、构建通过后提交并推送，部署方式见下文：
 
 ```bash
+npm run check
 npm run build
 git add src/content/projects/my-project.md
 git commit -m "Add my project"
 git push origin main
+git push github-pages main
 ```
 
 ## 在线编辑
@@ -114,4 +119,5 @@ git push origin main
 - 输出目录：`dist`
 - Node.js：20+
 
-可部署到 Cloudflare Pages 或 Vercel。正式上线前请修改 `astro.config.mjs` 中的 `site`。
+- `BoyJiang2/Boy-website`（`origin` remote）的 `main` 分支更新后自动部署到 Cloudflare；`ASTRO_SITE` 默认是 `https://boy-website.boyjiang2.workers.dev`。
+- `BoyJiang2/boyJiang2.github.io`（`github-pages` remote）由 `.github/workflows/deploy.yml` 部署；该工作流只在此仓库运行，使用 `main` 分支和 `ASTRO_SITE=https://boyjiang2.github.io`。

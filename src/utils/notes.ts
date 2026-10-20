@@ -1,6 +1,34 @@
+import type { CollectionEntry } from 'astro:content';
+import type { TreeNode } from '../components/ContentTree.astro';
+
+const categoryIcons: Record<string, string> = { '课程': '▤', '论文': '◈', '技术': '⌘', '工具': '✺' };
+
 export interface NoteSource {
   id: string;
   filePath?: string;
+}
+
+export function noteHref(entry: CollectionEntry<'notes'>) {
+  return `/notes/${getNoteLocation(entry).slug}/`;
+}
+
+export function buildNoteTree(entries: CollectionEntry<'notes'>[], currentId: string): TreeNode[] {
+  const located = entries.map((entry) => ({ entry, location: getNoteLocation(entry) }));
+  const currentLocation = located.find(({ entry }) => entry.id === currentId)?.location;
+  const categories = [...new Set(located.map(({ location }) => location.category))];
+  return categories.map((category) => {
+    const categoryEntries = located.filter(({ location }) => location.category === category);
+    const seriesNames = [...new Set(categoryEntries.map(({ location }) => location.series))];
+    const children = seriesNames.map((series) => {
+      const items = categoryEntries.filter(({ location }) => location.series === series).map(({ entry }) => ({
+        label: entry.data.title,
+        href: noteHref(entry),
+        current: entry.id === currentId,
+      }));
+      return { label: series, children: items, open: items.some((item) => item.current) };
+    });
+    return { label: category, icon: categoryIcons[category] ?? '•', children, open: category === currentLocation?.category };
+  });
 }
 
 export function getNoteLocation(entry: NoteSource) {

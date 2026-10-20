@@ -11,6 +11,8 @@ content:
     type: collection
     path: src/content/blogs
     fields:
+      - { name: published, label: 公开发布, type: boolean, default: false }
+      - { name: wide, label: 宽屏文章, type: boolean, default: false }
       - { name: title, label: 标题, type: string }
       - { name: summary, label: 摘要, type: text }
       - { name: tags, label: 标签, type: select, options: { multiple: true, values: [学习, 写作, Astro, Markdown, 工作流, AI, 系统, 工具] } }
@@ -23,11 +25,11 @@ content:
     type: collection
     path: src/content/projects
     fields:
+      - { name: published, label: 公开发布, type: boolean, default: true }
       - { name: title, label: 项目名称, type: string }
       - { name: summary, label: 摘要, type: text }
       - { name: tags, label: 标签, type: select, options: { multiple: true, values: [Astro, MDX, AI, 系统, 工具, Content Design] } }
-      - { name: github, label: GitHub 链接, type: string, required: false }
-      - { name: demo, label: 在线体验链接, type: string, required: false }
+      - { name: github, label: GitHub 链接, type: string, required: true }
       - { name: body, label: 正文, type: rich-text, options: { format: markdown, media: uploads, rename: true, switcher: true } }
   - name: notes
     label: 笔记
@@ -39,6 +41,7 @@ content:
       fields: [title]
       primary: title
     fields:
+      - { name: published, label: 公开发布, type: boolean, default: true }
       - { name: title, label: 标题, type: string }
       - { name: summary, label: 摘要, type: text }
       - { name: tags, label: 标签, type: select, options: { multiple: true, values: [网络, TCP, 系统, LLM, 分布式训练, GPU, 操作系统, xv6, RISC-V, Transformer, Attention, NLP, IO-Aware, Scaling, Empirical Study, AI, 工具, Markdown, 写作, Demo] } }

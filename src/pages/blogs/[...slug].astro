@@ -1,45 +1,27 @@
 ---
-import { getCollection, render } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleIndex from '../../components/ArticleIndex.astro';
+import { render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { blogHref, getPublishedBlogs } from '../../utils/content';
 import { getArticleWordCount } from '../../utils/article-meta';
 export async function getStaticPaths() {
-  return (await getCollection('blog')).filter((entry) => entry.data.published).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  const entries = await getPublishedBlogs();
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry, entries } }));
 }
-const { entry } = Astro.props;
+const { entry, entries } = Astro.props;
 const { Content, headings } = await render(entry);
-const entries = (await getCollection('blog')).filter((item) => item.data.published).sort((a, b) => a.data.title.localeCompare(b.data.title, 'zh-CN'));
 const wordCount = getArticleWordCount(entry.body);
 const tree = [{
   label: '全部文章',
   icon: '✦',
   children: entries.map((item) => ({
     label: item.data.title,
-    href: `/blogs/${item.id}/`,
+    href: blogHref(item),
     current: item.id === entry.id,
   })),
   open: true,
 }];
 ---
 
-<BaseLayout title={`${entry.data.title} — Boy Jiang`} description={entry.data.summary}>
-  <article class:list={['article-wrap', entry.data.wide ? 'interactive-article' : 'reading-article']}>
-    <a class="article-back" href="/blogs/">← 返回博客</a>
-    <header class="article-header">
-      <h1>{entry.data.title}</h1>
-      <p>{entry.data.summary}</p>
-      <div class="article-byline">
-        {entry.data.tags.length > 0 && <span>{entry.data.tags.join(' · ')}</span>}
-        {!entry.data.wide && <span>{wordCount} 字</span>}
-      </div>
-    </header>
-    {entry.data.wide ? <Content /> : <div class="reading-layout">
-      <ArticleIndex
-        collectionLabel="浏览全部博客"
-        tree={tree}
-        headings={headings}
-      />
-      <div class="prose"><Content /></div>
-    </div>}
-  </article>
-</BaseLayout>
+<ArticleLayout documentTitle={`${entry.data.title} — Boy Jiang`} description={entry.data.summary} title={entry.data.title} summary={entry.data.summary} backHref="/blogs/" backLabel="← 返回博客" tags={entry.data.tags} wordCount={entry.data.wide ? undefined : wordCount} variant={entry.data.wide ? 'wide' : 'reading'} collectionLabel="浏览全部博客" tree={tree} headings={headings}>
+  <Content />
+</ArticleLayout>

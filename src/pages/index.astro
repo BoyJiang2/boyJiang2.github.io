@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Image } from 'astro:assets';
 import profilePhoto from '../../public/brand/borui-jiang.jpg';
+import { SELF_AUTHOR, publications } from '../data/publications';
 ---
 
 <BaseLayout title="Boy Jiang" description="蒋博睿，中国科学院大学硕士生，聚焦 MLSys。">
@@ -72,16 +73,11 @@ import profilePhoto from '../../public/brand/borui-jiang.jpg';
       <h2>科研成果</h2>
     </div>
     <ol class="publication-list">
-      <li class="publication-item">
-        <p class="publication-title"><a href="https://doi.org/10.1109/TIFS.2023.3309101" rel="noreferrer">A Novel Earprint: Stimulus-Frequency Otoacoustic Emission for Biometric Recognition</a></p>
-        <p class="publication-authors">Yin Liu, <strong>Borui Jiang</strong>, Hongqing Liu, Yu Zhao, Fen Xiong, Yi Zhou</p>
-        <p class="publication-venue">IEEE Transactions on Information Forensics and Security (TIFS), 2023</p>
-      </li>
-      <li class="publication-item">
-        <p class="publication-title"><a href="https://dl.acm.org/doi/10.1145/3604383.3604386" rel="noreferrer">Ergonomic Load Differentiates Pediatric and Adult Physiotherapy: Ergonomic differences between adult physiotherapy and pediatric physiotherapy</a></p>
-        <p class="publication-authors">Yongji Wu, Shuang Liu, Junjie Zhang, <strong>Borui Jiang</strong>, Haitao Wang, Min Hu</p>
-        <p class="publication-venue">Proceedings of the 3rd International Conference on Human Machine Interaction (ICHMI), 2023</p>
-      </li>
+      {publications.map((publication) => <li class="publication-item">
+        <p class="publication-title"><a href={publication.url} rel="noreferrer">{publication.title}</a></p>
+        <p class="publication-authors">{publication.authors.map((author, index) => <>{index > 0 && ', '}{author === SELF_AUTHOR ? <strong>{author}</strong> : author}</>)}</p>
+        <p class="publication-venue">{publication.venue}</p>
+      </li>)}
     </ol>
   </section>
 </BaseLayout>

@@ -3,7 +3,7 @@ import { Image, getImage } from 'astro:assets';
 import logoLight from '../../public/brand/logo-navy-gold.png';
 import logoDark from '../../public/brand/logo-ivory-gold.png';
 import iconSource from '../../public/brand/site-icon-white.png';
-import 'katex/dist/katex.min.css';
+import { DEFAULT_THEME_ID, THEME_STORAGE_KEY, themes } from '../config/themes';
 import '../styles/global.css';
 
 interface Props {
@@ -22,30 +22,28 @@ const primaryNav = [
   { href: '/notes/', label: '笔记' },
   { href: '/blogs/', label: '博客' },
 ];
-const themes = [
-  { value: 'pure-white', label: 'Pure White' },
-  { value: 'midnight-gold', label: 'Midnight Gold' },
-  { value: 'professional-dark', label: 'Professional Dark' },
-  { value: 'pure-black', label: 'Pure Black' },
-];
+const defaultTheme = themes.find((theme) => theme.value === DEFAULT_THEME_ID)!;
 ---
 
 <!doctype html>
-<html lang="zh-CN" data-theme="pure-white">
+<html lang="zh-CN" data-theme={defaultTheme.value} data-scheme={defaultTheme.scheme}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content={defaultTheme.themeColor} />
     <link rel="icon" type="image/png" sizes="48x48" href={favicon.src} />
     <link rel="apple-touch-icon" sizes="180x180" href={touchIcon.src} />
     <title>{title}</title>
-    <script is:inline>
+    <script is:inline define:vars={{ themeOptions: themes, defaultThemeId: DEFAULT_THEME_ID, themeStorageKey: THEME_STORAGE_KEY }}>
+      let theme = themeOptions.find((theme) => theme.value === defaultThemeId);
       try {
-        const saved = localStorage.getItem('boy-jiang-theme-v2');
-        const allowed = ['pure-white', 'midnight-gold', 'professional-dark', 'pure-black'];
-        document.documentElement.dataset.theme = saved && allowed.includes(saved) ? saved : 'pure-white';
+        const saved = localStorage.getItem(themeStorageKey);
+        theme = themeOptions.find((theme) => theme.value === saved) ?? theme;
       } catch {}
+      document.documentElement.dataset.theme = theme.value;
+      document.documentElement.dataset.scheme = theme.scheme;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme.themeColor);
     </script>
   </head>
   <body>
@@ -94,35 +92,7 @@ const themes = [
       <span>© 2026 Boy Jiang</span>
       <a href="https://github.com/BoyJiang2" rel="noreferrer">GitHub ↗</a>
     </footer>
-    <script is:inline>
-      const themePicker = document.querySelector('.theme-picker');
-      const themeButtons = [...document.querySelectorAll('[data-theme-value]')];
-      const themeColor = document.querySelector('meta[name="theme-color"]');
-      const themeColors = {
-        'pure-white': '#ffffff',
-        'midnight-gold': '#f4f1ea',
-        'professional-dark': '#18191c',
-        'pure-black': '#000000',
-      };
-      const setTheme = (theme) => {
-        document.documentElement.dataset.theme = theme;
-        themeColor?.setAttribute('content', themeColors[theme] || themeColors['pure-white']);
-        themeButtons.forEach((button) => button.classList.toggle('selected', button.dataset.themeValue === theme));
-        try { localStorage.setItem('boy-jiang-theme-v2', theme); } catch {}
-        document.dispatchEvent(new CustomEvent('boy-jiang:theme-change'));
-      };
-      setTheme(document.documentElement.dataset.theme || 'pure-white');
-      themeButtons.forEach((button) => button.addEventListener('click', () => {
-        setTheme(button.dataset.themeValue);
-        themePicker?.removeAttribute('open');
-      }));
-      document.addEventListener('click', (event) => {
-        if (themePicker?.open && !themePicker.contains(event.target)) themePicker.removeAttribute('open');
-      });
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') themePicker?.removeAttribute('open');
-      });
-    </script>
+    <script src="../scripts/theme-picker.ts"></script>
     <script src="../scripts/mermaid.ts"></script>
   </body>
 </html>

@@ -1,23 +1,14 @@
 ---
-import { getCollection } from 'astro:content';
+import RedirectLayout from '../../layouts/RedirectLayout.astro';
+import { blogHref, getPublishedBlogs } from '../../utils/content';
 export const prerender = true;
 export async function getStaticPaths() {
-  return (await getCollection('blog')).filter((entry) => entry.data.published).map((entry) => ({
+  return (await getPublishedBlogs()).map((entry) => ({
     params: { slug: entry.id },
-    props: { destination: `/blogs/${entry.id}/` },
+    props: { destination: blogHref(entry) },
   }));
 }
 const { destination } = Astro.props;
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <title>Boy Jiang</title>
-    <meta http-equiv="refresh" content={`0;url=${destination}`} />
-    <meta name="robots" content="noindex" />
-    <link rel="canonical" href={new URL(destination, Astro.site ?? Astro.url)} />
-  </head>
-  <body><a href={destination}>前往文章</a></body>
-</html>
+<RedirectLayout destination={destination} linkLabel="前往文章" />
