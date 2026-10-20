@@ -1,0 +1,36 @@
+---
+import { areaByKey, stageNames } from '../../data/atlas';
+import { shortTitle, tierClass } from '../../data/atlas/display';
+import type { Area } from '../../data/atlas/types';
+interface Props { area: Area; }
+const { area } = Astro.props;
+const branchNames = Object.fromEntries(area.branches.map(branch => [branch.id, branch.name]));
+---
+
+<div class="starter">
+  <div><div class="lbl first-label">入门课程</div><ul class="topics">{area.start.courses.map((course, index) => <li id={`atlas-${area.key}-course-${index}`} tabindex="-1">{course.url ? <a href={course.url} target="_blank" rel="noopener noreferrer">{course.title}</a> : course.title}</li>)}</ul></div>
+  <div><div class="lbl">第一个动手项目</div><p id={`atlas-${area.key}-project`} tabindex="-1">{area.start.project}</p></div>
+</div>
+<p class="hint">精选文献，按阶段与年份排列；详见原文。</p>
+<div class="path">
+  {area.papers.map((paper, index) => {
+    const next = area.papers[index + 1];
+    return <>
+      {(index === 0 || area.papers[index - 1].stage !== paper.stage) && <h3 class="route-stage">{stageNames[paper.stage]}</h3>}
+      <div class="paper" id={`atlas-${area.key}-paper-${paper.id}`} data-venue={paper.venue} tabindex="-1">
+        <div class="rail2"><div class="dot">{index + 1}</div></div>
+        <article class="pcard">
+          <div class="pmeta"><span class:list={['stage', `s${paper.stage}`]}>{stageNames[paper.stage]}</span><span>{branchNames[paper.branch]}</span><span class:list={['tier', tierClass(paper.tier)]}>{paper.tier}</span><span class="mono">{paper.venue} {paper.year}</span></div>
+          <h4>{paper.title}</h4>
+          <div class="au">{paper.authors}</div>
+          <dl class="pf"><dt>研究问题</dt><dd>{paper.question}</dd><dt>核心贡献</dt><dd>{paper.contribution}</dd><dt>为什么读</dt><dd>{paper.whyRead}</dd><dt>读完应掌握</dt><dd>{paper.takeaway}</dd></dl>
+          <div class="pfoot">
+            <span>{next ? <>下一篇：<button type="button" class="nextb" data-paper={next.id} data-owner={area.key}>{shortTitle(next.title)}</button></> : <>读完这条路线，可以接着看 <button type="button" class="nextb" data-go={area.nextArea}>{areaByKey[area.nextArea].name}</button></>}</span>
+            <a href={paper.source} target="_blank" rel="noopener noreferrer">原文 / 出处 ↗</a>
+          </div>
+        </article>
+      </div>
+    </>;
+  })}
+</div>
+<p class="hint" title="— 表示本条未补充分级，不代表会议 / 期刊未列入 CCF；期刊、非 CS 等原有标注不等同于 CCF 等级。">分级仅供参考，以官方目录为准。</p>

@@ -53,6 +53,12 @@ tags: [Transformer, Attention]
 - 正文中的 `## / ### / ####` 会自动生成文章目录。
 - 公式、代码、引用、表格和图片示例见 `src/content/notes/技术/Markdown 写作手册/markdown-capabilities-demo.md`。
 
+### 知识图谱
+
+数据放在 `src/data/atlas/`：`areas/<key>.ts` 每个方向一份，`tools.ts` 是共享工具库；`layers.ts` 保存层级，`venues.ts` 保存期刊分级、核实标签和阅读阶段名称。
+
+构建时会校验所有交叉引用，发现错误就停止并指出具体引用；搜索索引也在构建时生成。
+
 ### 图片与附件
 
 推荐将文章图片放在文章同目录的 `assets/` 中，图片会由 Astro 自动读取、打包并部署。这样移动或重命名文章时，图片也会一起管理：

@@ -1,0 +1,26 @@
+---
+import { areas, cellNumbers, layers } from '../../data/atlas';
+import AtlasCell from './AtlasCell.astro';
+const rails = areas.filter(area => area.layer === 'rail');
+const railRange = `${cellNumbers[rails[0].key]}–${cellNumbers[rails[rails.length - 1].key]}`;
+---
+
+<section class="die" aria-label="方向版图">
+  <div class="grid">
+    <div class="layers">
+      {layers.map(layer => <div class="layer">
+        <div class="lname"><b>{layer.title}</b>{layer.subtitle}</div>
+        <div class="cells">{areas.filter(area => area.layer === layer.key).map(area => <AtlasCell area={area} />)}</div>
+      </div>)}
+    </div>
+    <div class="railbox">
+      <div class="rails">{rails.map(area => <AtlasCell area={area} />)}</div>
+      <div class="railcap">{railRange} · 横切方向<br />不属于某一层，贯穿全栈</div>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i class="legend-selected"></i>当前选中</span>
+    <span><i class="legend-neighbor"></i>紧密相邻方向</span>
+    <span><i class="legend-match"></i>会议命中</span>
+  </div>
+</section>

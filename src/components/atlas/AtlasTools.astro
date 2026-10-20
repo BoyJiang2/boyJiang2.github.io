@@ -1,0 +1,33 @@
+---
+import { tools, verificationBadges } from '../../data/atlas';
+import type { Area } from '../../data/atlas/types';
+interface Props { area: Area; }
+const { area } = Astro.props;
+const methods = [...area.methods, ...(area.addon ? [area.addon] : [])];
+const methodNames = Object.fromEntries(methods.map(method => [method.id, method.name]));
+---
+
+<p class="hint">研究结论高度依赖实验方法。下面这些方法从左到右越来越接近真实系统，代价也越来越高{area.addon ? '；功耗与面积估算可以叠加在任意一种之上' : ''}。点击某种方法，只看对应的工具。</p>
+<div class="spec" style={`--n:${area.methods.length}`}>
+  {area.methods.map(method => <button type="button" class="seg" data-method-filter={method.id} data-method-name={method.name} aria-pressed="false"><b>{method.name}</b><span>{method.examples}</span><em>＋ {method.pros}</em><em>− {method.cons}</em></button>)}
+</div>
+<div class="axis"><span>更快 · 更抽象 · 能探索的范围更大</span><span>更接近真实系统 · 成本更高</span></div>
+{area.addon && <button type="button" class="seg addon" data-method-filter={area.addon.id} data-method-name={area.addon.name} aria-pressed="false"><b>{area.addon.name}</b><span>{area.addon.examples}</span><em>＋ {area.addon.pros}</em><em>− {area.addon.cons}</em></button>}
+<p class="hint" data-filter-hint hidden>正在显示「<span data-filter-name></span>」的工具，<button type="button" class="nextb" data-clear-method>显示全部</button></p>
+<p class="pending" data-filter-empty hidden>这种方法没有收录专门的工具，通常依靠论文中的自研平台。</p>
+<div class="tools">
+  {area.toolRefs.map(ref => {
+    const tool = tools[ref.tool];
+    const badge = verificationBadges[tool.verification];
+    return <article class="tool" id={`atlas-${area.key}-tool-${ref.tool}`} data-method={ref.method} tabindex="-1">
+      <header><h4>{tool.name}</h4><span class="mchip">{methodNames[ref.method]}</span></header>
+      <dl><dt>适用任务</dt><dd>{tool.use}</dd><dt>能模拟 / 测量</dt><dd>{tool.capabilities}</dd><dt class="lim">局限</dt><dd class="lim">{tool.limitations}</dd><dt>常见验证</dt><dd>{tool.validation}</dd></dl>
+      <div class="vrow">
+        <span class:list={['vb', tool.verification]} title={badge.note}>{badge.label}</span>
+        {tool.sources.map(source => <a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}</a>)}
+        {tool.verificationNote && <span class="vnote">{tool.verificationNote}</span>}
+      </div>
+    </article>;
+  })}
+</div>
+<p class="hint badge-guide">标签说明：<span class="vb ok">已核实</span> 按原论文或官方页面核对过；<span class="vb part">部分核实</span> 出处已核对、部分细节未能在线复核；<span class="vb none">概括</span> 依据项目官方的公开描述概括，用之前请以官方文档为准。</p>

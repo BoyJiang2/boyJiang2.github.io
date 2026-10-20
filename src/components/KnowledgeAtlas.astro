@@ -1,68 +1,28 @@
 ---
-import { createHash } from 'node:crypto';
-import atlasHTML from '../../public/knowledge-atlas/document.html?raw';
-
-// Keep the reviewed local document intact; site styles must not restyle the atlas.
-const version = createHash('sha256').update(atlasHTML).digest('hex').slice(0, 12);
-const atlasURL = `/knowledge-atlas/document.html?v=${version}`;
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-600.css';
+import '../styles/atlas.css';
+import { areas, DEFAULT_AREA } from '../data/atlas';
+import AtlasIntro from './atlas/AtlasIntro.astro';
+import AtlasSearch from './atlas/AtlasSearch.astro';
+import AtlasDie from './atlas/AtlasDie.astro';
+import AtlasDetail from './atlas/AtlasDetail.astro';
+import AtlasCatalog from './atlas/AtlasCatalog.astro';
 ---
 
-<iframe
-  class="knowledge-atlas-frame"
-  data-atlas-frame
-  src={atlasURL}
-  title="体系结构与系统知识图谱"
-  width="100%"
-  height="1100"
-  loading="eager"
-></iframe>
+<div class="knowledge-atlas" data-knowledge-atlas>
+  <a class="skip-link" href="#atlas-detail">跳到方向详情</a>
+  <AtlasIntro />
+  <AtlasSearch />
+  <p id="atlas-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+  <AtlasDie />
+  <noscript><p>切换方向、标签页和搜索需要启用 JavaScript；下面显示的是默认方向的概览。</p></noscript>
+  <section class="detail" id="atlas-detail" aria-labelledby={`atlas-${DEFAULT_AREA}-heading`} tabindex="-1">
+    {areas.map(area => <AtlasDetail area={area} />)}
+  </section>
+  <AtlasCatalog />
+</div>
 
 <script>
-  function initializeAtlasFrames() {
-    document.querySelectorAll<HTMLIFrameElement>('[data-atlas-frame]').forEach((frame) => {
-      if (frame.dataset.initialized) return;
-      frame.dataset.initialized = 'true';
-      let sizeObserver: ResizeObserver | undefined;
-      const syncTheme = () => {
-        const scheme = document.documentElement.dataset.scheme;
-        if (frame.contentDocument && (scheme === 'dark' || scheme === 'light')) {
-          frame.contentDocument.documentElement.dataset.theme = scheme;
-        }
-      };
-      const connect = () => {
-        const doc = frame.contentDocument;
-        if (!doc?.body || !doc.querySelector('.wrap')) return;
-        sizeObserver?.disconnect();
-        syncTheme();
-        const resize = () => {
-          // Body content height, not viewport/scrollHeight: the frame must also shrink.
-          const style = getComputedStyle(doc.body);
-          const height = Math.ceil(doc.body.getBoundingClientRect().height
-            + (parseFloat(style.marginTop) || 0) + (parseFloat(style.marginBottom) || 0));
-          if (height > 0 && Math.abs(frame.getBoundingClientRect().height - height) > 1) {
-            frame.style.height = `${height}px`;
-          }
-        };
-        sizeObserver = new ResizeObserver(resize);
-        sizeObserver.observe(doc.body);
-        doc.fonts.ready.then(resize);
-        resize();
-      };
-      frame.addEventListener('load', connect);
-      new MutationObserver(syncTheme).observe(document.documentElement, {
-        attributes: true, attributeFilter: ['data-scheme'],
-      });
-      connect();
-    });
-  }
-  initializeAtlasFrames();
-  document.addEventListener('astro:page-load', initializeAtlasFrames);
+  import '../scripts/atlas';
 </script>
-
-<style>
-  .knowledge-atlas-frame {
-    display: block;
-    width: 100%;
-    border: 0;
-  }
-</style>

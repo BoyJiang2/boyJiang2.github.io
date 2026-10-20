@@ -1,0 +1,23 @@
+---
+import { areaByKey, paperById, paperArea, tools, toolAreas } from '../../data/atlas';
+import { shortTitle } from '../../data/atlas/display';
+import type { Area } from '../../data/atlas/types';
+interface Props { area: Area; }
+const { area } = Astro.props;
+---
+
+<p class="hint">二级是子方向，三级是具体课题。实心圆点是本方向内部的子领域，虚线圆点是与其他方向的交叉，点击右侧标签可以跳到那个方向。每个子方向下面列出了常用工具和推荐论文，点击可直接跳转。</p>
+<div class="tkey"><span><i></i>子领域</span><span><i class="x"></i>交叉领域</span></div>
+<div class="tree">
+  {area.branches.map(branch => <details class="branch" id={`atlas-${area.key}-branch-${branch.id}`} tabindex="-1" open>
+    <summary><span class="bt"><b>{branch.name}</b><span class="ab">（{branch.english}）</span></span></summary>
+    <div class="bbody">
+      <p>{branch.description}</p>
+      <ul class="leaves">{branch.leaves.map(leaf => <li class:list={[leaf.crossArea && 'x']}>
+        {leaf.text}{leaf.crossArea && <button type="button" class="xgo" data-go={leaf.crossArea}>交叉 → {areaByKey[leaf.crossArea].name}</button>}
+      </li>)}</ul>
+      {!!branch.tools.length && <div class="refs">工具 {branch.tools.map(id => <button type="button" data-tool={id} data-owners={toolAreas.get(id)!.join(' ')}>{tools[id].name}</button>)}</div>}
+      {!!branch.papers.length && <div class="refs">文献 {branch.papers.map(id => <button type="button" data-paper={id} data-owner={paperArea.get(id)}>{shortTitle(paperById.get(id)!.title)} · {paperById.get(id)!.year}</button>)}</div>}
+    </div>
+  </details>)}
+</div>

@@ -1,0 +1,12 @@
+---
+import { areaByKey, cellNumbers, DEFAULT_AREA } from '../../data/atlas';
+import type { Area } from '../../data/atlas/types';
+interface Props { area: Area; }
+const { area } = Astro.props;
+---
+
+<button type="button" class:list={['cell', area.layer === 'rail' && 'rail', area.key === DEFAULT_AREA && 'on', areaByKey[DEFAULT_AREA].neighbors.includes(area.key) && 'near']} id={`atlas-cell-${area.key}`} data-area-cell={area.key} data-neighbors={area.neighbors.join(' ')} data-name={area.name} data-abbr={area.abbr} aria-label={`${area.name}（${area.abbr}）`} aria-pressed={area.key === DEFAULT_AREA ? 'true' : 'false'} aria-controls="atlas-detail">
+  <span class="n">{cellNumbers[area.key]}</span>
+  <span class="t">{area.name}<span class="ab">（{area.abbr}）</span></span>
+  {area.layer !== 'rail' && <span class="c">{area.conferences.slice(0, 2).map(conference => conference.name).join(' · ')}</span>}
+</button>

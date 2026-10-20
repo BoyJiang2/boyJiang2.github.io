@@ -1,0 +1,19 @@
+---
+const quickConferences = ['OSDI', 'ASPLOS', 'NSDI', 'ISCA', 'USENIX ATC', 'EuroSys'];
+---
+
+<div class="search" role="search" aria-label="搜索图谱">
+  <label for="atlas-query">搜索图谱</label>
+  <input id="atlas-query" type="search" placeholder="搜索图谱…" autocomplete="off" aria-describedby="atlas-matchinfo" aria-controls="atlas-search-results" />
+  <button type="button" class="clear-query" data-clear-query hidden>清除筛选</button>
+  <div class="quick" aria-label="常用会议">
+    {quickConferences.map(name => <button type="button" data-q={name} aria-pressed="false">{name}</button>)}
+  </div>
+</div>
+<div class="matchinfo" id="atlas-matchinfo" role="status" aria-live="polite" aria-atomic="true"></div>
+<section id="atlas-search-results" class="search-results" aria-labelledby="atlas-results-heading" hidden>
+  <h2 id="atlas-results-heading">搜索结果</h2>
+  <p class="hint">覆盖方向、研究分支、工具方法、论文、会议期刊和入门课程。点击结果前往内容；有多个所属方向时可指定方向。输入框按回车打开首项，↓ 进入结果，Esc 清除。</p>
+  <ol class="result-list" data-result-list></ol>
+  <button type="button" class="clear-query search-more" data-search-more hidden>显示更多</button>
+</section>

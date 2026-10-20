@@ -1,0 +1,28 @@
+---
+import type { Area } from '../../data/atlas/types';
+import { DEFAULT_AREA, tabs } from '../../data/atlas/display';
+import AtlasOverview from './AtlasOverview.astro';
+import AtlasTree from './AtlasTree.astro';
+import AtlasTools from './AtlasTools.astro';
+import AtlasPapers from './AtlasPapers.astro';
+interface Props { area: Area; }
+const { area } = Astro.props;
+const prefix = `atlas-${area.key}`;
+---
+
+<div class="area-detail" data-area={area.key} hidden={area.key !== DEFAULT_AREA}>
+  <div class="dhead">
+    <h2 id={`${prefix}-heading`} tabindex="-1">{area.name}<span class="ab">（{area.abbr}）</span></h2>
+    <p class="one">{area.summary}</p>
+  </div>
+  <div class="tabs" role="tablist" aria-label={`${area.name}（${area.abbr}）详情`}>
+    {tabs.map(tab => <button type="button" role="tab" id={`${prefix}-tab-${tab.key}`} data-tab={tab.key} aria-controls={`${prefix}-panel-${tab.key}`} aria-selected={tab.key === 'ov' ? 'true' : 'false'} tabindex={tab.key === 'ov' ? 0 : -1}>{tab.label}</button>)}
+    <span class="tab-indicator" aria-hidden="true"></span>
+  </div>
+  {tabs.map(tab => <div class="panel" role="tabpanel" id={`${prefix}-panel-${tab.key}`} aria-labelledby={`${prefix}-tab-${tab.key}`} tabindex="0" hidden={tab.key !== 'ov'}>
+    {tab.key === 'ov' && <AtlasOverview area={area} />}
+    {tab.key === 'tree' && <AtlasTree area={area} />}
+    {tab.key === 'tools' && <AtlasTools area={area} />}
+    {tab.key === 'papers' && <AtlasPapers area={area} />}
+  </div>)}
+</div>

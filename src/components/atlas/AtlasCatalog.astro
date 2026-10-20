@@ -1,0 +1,21 @@
+---
+import { areas } from '../../data/atlas';
+import type { Tier } from '../../data/atlas/types';
+const conferences = new Map<string, { tier: Tier; count: number }>();
+areas.forEach(area => area.conferences.forEach(conference => {
+  const entry = conferences.get(conference.name);
+  conferences.set(conference.name, { tier: conference.tier, count: (entry?.count ?? 0) + 1 });
+}));
+const groups: { tier: Tier; label: string }[] = [{ tier: 'A', label: 'A 类' }, { tier: 'B', label: 'B 类' }, { tier: 'C', label: 'C 类' }, { tier: '—', label: '未列入' }];
+const names = (tier: Tier) => [...conferences.keys()].filter(name => conferences.get(name)!.tier === tier).sort((a, b) => conferences.get(b)!.count - conferences.get(a)!.count || a.localeCompare(b));
+---
+
+<section class="catalog" aria-label="CCF 会议总览">
+  <h3>本图谱收录的会议</h3>
+  <p>共 {conferences.size} 个会议：CCF A 类 {names('A').length} 个，B 类 {names('B').length} 个，C 类 {names('C').length} 个，未列入 {names('—').length} 个。按覆盖方向数排序，越靠前越"综合"。</p>
+  <div>{groups.map(group => <div class="crow">
+    <div class="h">{group.label}<small>{names(group.tier).length} 个</small></div>
+    <div class:list={['chips', group.tier === 'A' && 'A', group.tier === 'B' && 'B']}>{names(group.tier).map(name => <button type="button" data-conf={name} aria-pressed="false">{name}</button>)}</div>
+  </div>)}</div>
+  <p>等级依据 CCF 官网当前推荐目录。体系结构/并行与分布计算/存储系统类的 10 个 A 类和 26 个 B 类会议全部收录，另从网络、安全、系统软件与程序设计语言、数据库、交叉类和人工智能类中选取了与系统相关的会议。点击任一会议，版图上会高亮它覆盖的方向。</p>
+</section>

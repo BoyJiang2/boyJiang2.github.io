@@ -1,0 +1,34 @@
+---
+import { areaByKey } from '../../data/atlas';
+import { tierClass } from '../../data/atlas/display';
+import type { Area } from '../../data/atlas/types';
+interface Props { area: Area; }
+const { area } = Astro.props;
+---
+
+<div class="ov">
+  <div>
+    <div class="lbl first-label">核心研究内容</div>
+    <ul class="topics">{area.topics.map(topic => <li>{topic}</li>)}</ul>
+    <div class="lbl">当下热点</div>
+    <div class="hot">{area.hot.map(hot => <span>{hot}</span>)}</div>
+    <div class="lbl">相邻方向</div>
+    <div class="links">
+      {area.neighbors.map(key => <button type="button" data-go={key}>{areaByKey[key].name}</button>)}
+      <small>版图上蓝色高亮的就是这些邻居，点击跳转</small>
+    </div>
+  </div>
+  <div>
+    <div class="lbl">代表会议</div>
+    <div class="confs">
+      {area.conferences.map(conference => <div class="conf">
+        <span class:list={['tier', tierClass(conference.tier)]}>{conference.tier}</span>
+        <button type="button" data-conf={conference.name} aria-pressed="false">{conference.name}</button>
+        <span class="note">{conference.note}</span>
+      </div>)}
+    </div>
+    <div class="lbl">代表期刊</div>
+    <div class="jrow">{area.journals.map(journal => <span class="jt" data-journal={journal.name}><span class:list={['tier', tierClass(journal.tier)]}>{journal.tier}</span>{journal.name}</span>)}</div>
+    <small class="venue-note">A / B / C 为 CCF 等级，— 表示未列入目录。点会议名可在版图上反查。</small>
+  </div>
+</div>
