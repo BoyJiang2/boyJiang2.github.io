@@ -1,4 +1,8 @@
 ---
+import { Image, getImage } from 'astro:assets';
+import logoLight from '../../public/brand/logo-navy-gold.png';
+import logoDark from '../../public/brand/logo-ivory-gold.png';
+import iconSource from '../../public/brand/site-icon-white.png';
 import 'katex/dist/katex.min.css';
 import '../styles/global.css';
 
@@ -11,6 +15,8 @@ const {
   title = 'Boy Jiang',
   description = '蒋博睿的个人介绍与科研成果。',
 } = Astro.props;
+const favicon = await getImage({ src: iconSource, width: 48, height: 48, format: 'png' });
+const touchIcon = await getImage({ src: iconSource, width: 180, height: 180, format: 'png' });
 const pathname = Astro.url.pathname;
 const primaryNav = [
   { href: '/notes/', label: '笔记' },
@@ -31,8 +37,8 @@ const themes = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#ffffff" />
-    <link rel="icon" type="image/png" href="/brand/site-icon-white.png" />
-    <link rel="apple-touch-icon" href="/brand/site-icon-white.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href={favicon.src} />
+    <link rel="apple-touch-icon" sizes="180x180" href={touchIcon.src} />
     <title>{title}</title>
     <script is:inline>
       try {
@@ -47,8 +53,8 @@ const themes = [
     <header class="site-header shell">
       <a class="wordmark" href="/" aria-label="Boy Jiang 首页">
         <span class="brand-mark" aria-hidden="true">
-          <img class="brand-logo brand-logo-light" src="/brand/logo-navy-gold.png" alt="" width="1920" height="1920" />
-          <img class="brand-logo brand-logo-dark" src="/brand/logo-ivory-gold.png" alt="" width="1920" height="1920" />
+          <Image class="brand-logo brand-logo-light" src={logoLight} alt="" width={148} height={148} format="webp" loading="eager" />
+          <Image class="brand-logo brand-logo-dark" src={logoDark} alt="" width={148} height={148} format="webp" loading="eager" />
         </span>
         <span class="wordmark-text">Boy Jiang</span>
       </a>

@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import profilePhoto from '../../public/brand/borui-jiang.jpg';
 ---
 
 <BaseLayout title="Boy Jiang" description="蒋博睿，中国科学院大学硕士生，聚焦 MLSys。">
@@ -9,8 +11,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <h1>蒋博睿 <span>Boy Jiang</span></h1>
       <p class="profile-home-role">硕士生 · 中国科学院大学上海微系统与信息技术研究所</p>
       <p class="profile-home-intro">我是来自中国科学院大学上海微系统与信息技术研究所的二年级硕士生。我的研究领域是 MLSys 和 AI infra，尤其是大模型推理与服务系统、KV Cache 中的调度和协同问题。</p>
-      <p class="profile-mantra" aria-label="Emotional Insensitivity. Distraction Resistance. Rapid Flow-State Entry.">
-        <span class="mantra-line" data-mantra-line aria-hidden="true">Emotional Insensitivity. Distraction Resistance.</span>
+      <p class="profile-mantra" aria-label="Emotional Resilience. Distraction Resistance. Rapid Flow-State Entry.">
+        <span class="mantra-line" data-mantra-line aria-hidden="true">Emotional Resilience. Distraction Resistance.</span>
         <span class="mantra-line" data-mantra-line aria-hidden="true">Rapid Flow-State Entry.</span>
       </p>
       <div class="profile-focus" aria-label="研究方向">
@@ -34,7 +36,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </nav>
     </div>
     <figure class="profile-photo">
-      <img src="/brand/borui-jiang.jpg" alt="蒋博睿" width="744" height="1028" />
+      <Image src={profilePhoto} alt="蒋博睿" width={540} format="webp" loading="eager" fetchpriority="high" />
     </figure>
   </section>
 
