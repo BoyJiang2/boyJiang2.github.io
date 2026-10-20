@@ -209,7 +209,7 @@
 .knowledge-atlas .nextb { background: transparent; border: 0; cursor: pointer; font: 12px/1.65 var(--sans); padding: 0; text-decoration: underline; }
 .knowledge-atlas .catalog { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
 .knowledge-atlas .catalog h3 { font-size: 22px; margin: 0; }
-.knowledge-atlas .catalog p { margin: 0; color: var(--muted); font-size: 13px; max-width: 70ch; }
+.knowledge-atlas .catalog p { margin: 0; color: var(--muted); font-size: 13px; }
 .knowledge-atlas .crow { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 10px; align-items: start; margin-bottom: 10px; }
 .knowledge-atlas .crow .h { font-size: 13px; font-weight: 600; padding-top: 4px; }
 .knowledge-atlas .crow .h small { display: block; font-weight: 400; color: var(--muted); font-family: var(--atlas-mono); }
