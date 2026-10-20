@@ -26,7 +26,7 @@ export const edge: Area = {
     { name: 'CASES', tier: 'C', note: '嵌入式编译与架构' },
     { name: 'IEEE QCE', tier: '—', note: '量子计算工程，未列入' },
     { name: 'NeurIPS', tier: 'A', note: '人工智能类；MCUNet 等 TinyML 论文发表于此' },
-    { name: 'ICLR', tier: '—', note: '未列入 CCF；Once-for-All 等端侧部署论文发表于此' },
+    { name: 'ICLR', tier: 'A', note: '人工智能类；Once-for-All 等端侧部署论文发表于此' },
   ],
   hot: ['端侧大模型', 'TinyML', '量子纠错', '机器人系统'],
   neighbors: ['arch', 'energy', 'comp'],

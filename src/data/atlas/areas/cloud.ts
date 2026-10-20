@@ -16,7 +16,7 @@ export const cloud: Area = {
   conferences: [
     { name: 'EuroSys', tier: 'A', note: '系统综合' },
     { name: 'NSDI', tier: 'A', note: '网络化系统' },
-    { name: 'USENIX ATC', tier: 'A', note: '系统综合' },
+    { name: 'ACM SIGOPS ATC', tier: 'A', note: '系统综合；原 USENIX ATC' },
     { name: 'SoCC', tier: 'B', note: '云计算专门会议' },
     { name: 'VEE', tier: 'B', note: '虚拟化' },
     { name: 'SIGMETRICS', tier: 'B', note: '性能测量与建模' },
@@ -339,7 +339,7 @@ export const cloud: Area = {
     { name: 'TOCS', tier: 'A' },
     { name: 'TPDS', tier: 'A' },
     { name: 'TSC', tier: 'A' },
-    { name: 'TCC', tier: 'C' },
+    { name: 'TCC', tier: 'B' },
     { name: 'FGCS', tier: 'C' },
   ],
 };

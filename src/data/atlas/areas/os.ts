@@ -17,7 +17,7 @@ export const os: Area = {
     { name: 'OSDI', tier: 'A', note: '旗舰' },
     { name: 'SOSP', tier: 'A', note: '旗舰' },
     { name: 'EuroSys', tier: 'A', note: '欧洲旗舰' },
-    { name: 'USENIX ATC', tier: 'A', note: '系统综合' },
+    { name: 'ACM SIGOPS ATC', tier: 'A', note: '系统综合；原 USENIX ATC' },
     { name: 'ASPLOS', tier: 'A', note: '软硬交界' },
     { name: 'HotOS', tier: 'B', note: '前瞻短文' },
     { name: 'VEE', tier: 'B', note: '虚拟执行环境' },

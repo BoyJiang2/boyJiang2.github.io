@@ -1,7 +1,9 @@
 import type { SearchItem } from './types';
+import { conferenceFormerNames } from './venues';
 
 export const normalizeSearch = (value: string) => String(value).normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
-export const venueHas = (venue: string, name: string) => (` ${normalizeSearch(venue).replace(/[^\p{L}\p{N}]+/gu, ' ')} `).includes(` ${normalizeSearch(name).replace(/[^\p{L}\p{N}]+/gu, ' ')} `);
+export const venueHas = (venue: string, name: string) => [name, ...(conferenceFormerNames[name] ?? [])].some(candidate =>
+  (` ${normalizeSearch(venue).replace(/[^\p{L}\p{N}]+/gu, ' ')} `).includes(` ${normalizeSearch(candidate).replace(/[^\p{L}\p{N}]+/gu, ' ')} `));
 
 export function findSearch(items: SearchItem[], value: string, exactConference = false) {
   const query = normalizeSearch(value);

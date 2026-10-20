@@ -23,6 +23,7 @@ export const eda: Area = {
     { name: 'ASP-DAC', tier: 'C', note: '亚太设计自动化' },
     { name: 'ISPD', tier: 'C', note: '物理设计' },
     { name: 'GLSVLSI', tier: 'C', note: 'VLSI' },
+    { name: 'ISCAS', tier: 'B', note: '电路与系统旗舰会议' },
   ],
   hot: ['LLM 写 RTL', 'Chiplet 设计', '开源 EDA', '3D IC'],
   neighbors: ['arch', 'energy', 'rel'],

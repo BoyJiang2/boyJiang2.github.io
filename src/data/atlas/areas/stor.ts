@@ -15,7 +15,7 @@ export const stor: Area = {
   ],
   conferences: [
     { name: 'FAST', tier: 'A', note: '旗舰' },
-    { name: 'USENIX ATC', tier: 'A', note: '系统综合' },
+    { name: 'ACM SIGOPS ATC', tier: 'A', note: '系统综合；原 USENIX ATC' },
     { name: 'OSDI', tier: 'A', note: '存储论文常见' },
     { name: 'EuroSys', tier: 'A', note: '系统综合' },
     { name: 'MSST', tier: 'B', note: '海量存储' },

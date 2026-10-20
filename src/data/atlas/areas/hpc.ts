@@ -18,7 +18,7 @@ export const hpc: Area = {
     { name: 'PPoPP', tier: 'A', note: '并行编程原理' },
     { name: 'ICS', tier: 'B', note: '超级计算' },
     { name: 'IPDPS', tier: 'B', note: '并行与分布式处理' },
-    { name: 'HPDC', tier: 'B', note: '高性能分布式计算' },
+    { name: 'HPDC', tier: 'A', note: '高性能分布式计算' },
     { name: 'CLUSTER', tier: 'B', note: '集群计算' },
     { name: 'ICPP', tier: 'B', note: '并行处理' },
     { name: 'SPAA', tier: 'B', note: '并行算法与架构' },

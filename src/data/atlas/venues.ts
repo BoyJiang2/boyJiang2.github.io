@@ -1,5 +1,9 @@
 import type { Tier, Verification, VerificationBadge } from './types';
 
+export const conferenceFormerNames: Record<string, string[]> = {
+  'ACM SIGOPS ATC': ['USENIX ATC'],
+};
+
 export const journalTiers: Record<string, Tier> = {
   TOCS: 'A',
   TOS: 'A',

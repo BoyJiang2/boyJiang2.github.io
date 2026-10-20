@@ -17,5 +17,5 @@ const names = (tier: Tier) => [...conferences.keys()].filter(name => conferences
     <div class="h">{group.label}<small>{names(group.tier).length} 个</small></div>
     <div class:list={['chips', group.tier === 'A' && 'A', group.tier === 'B' && 'B']}>{names(group.tier).map(name => <button type="button" data-conf={name} aria-pressed="false">{name}</button>)}</div>
   </div>)}</div>
-  <p>等级依据 CCF 官网当前推荐目录。体系结构/并行与分布计算/存储系统类的 10 个 A 类和 26 个 B 类会议全部收录，另从网络、安全、系统软件与程序设计语言、数据库、交叉类和人工智能类中选取了与系统相关的会议。点击任一会议，版图上会高亮它覆盖的方向。</p>
+  <p>等级依据 CCF 第七版推荐目录（2026 年 3 月发布）。体系结构/并行与分布计算/存储系统类的 11 个 A 类和 26 个 B 类会议全部收录，另从网络、安全、系统软件与程序设计语言、数据库、交叉类和人工智能类中选取了与系统相关的会议。点击任一会议，版图上会高亮它覆盖的方向。</p>
 </section>
