@@ -20,7 +20,7 @@ export const atlasAreas: AtlasArea[] = [
  {k:"mlsys",L:"apps",t:"MLSys",en:"Machine Learning Systems",
   one:"为大模型训练和推理设计系统。专门会议 MLSys 还未进 CCF 目录，论文主要发在各大系统 A 类会议上。",
   topics:["分布式训练并行策略：数据 / 张量 / 流水线 / 专家并行","LLM 推理服务：KV Cache 管理、批处理调度、投机解码","深度学习编译：算子融合、自动调优（TVM、Triton 一类）","训练容错、显存优化、低精度与量化"],
-  confs:[["OSDI","A","系统顶会，ML 系统论文占比很高"],["SOSP","A","同上，奇数年举办"],["ASPLOS","A","软硬协同"],["EuroSys","A","欧洲系统旗舰"],["USENIX ATC","A","系统综合"],["ISCA","A","AI 加速器"],["MICRO","A","AI 加速器"],["NSDI","A","训练网络与集群"],["SC","A","大规模训练"],["PPoPP","A","并行算子与通信"],["NeurIPS","A","人工智能类，含系统方向论文"],["ICML","A","人工智能类"],["MLSys","—","本方向旗舰，未列入 CCF"]],
+  confs:[["OSDI","A","系统顶会，ML 系统论文占比很高"],["SOSP","A","同上，2024 年起每年举办"],["ASPLOS","A","软硬协同"],["EuroSys","A","欧洲系统旗舰"],["USENIX ATC","A","系统综合"],["ISCA","A","AI 加速器"],["MICRO","A","AI 加速器"],["NSDI","A","训练网络与集群"],["SC","A","大规模训练"],["PPoPP","A","并行算子与通信"],["NeurIPS","A","人工智能类，含系统方向论文"],["ICML","A","人工智能类"],["MLSys","—","本方向旗舰，未列入 CCF"]],
   hot:["LLM Serving","长上下文","MoE 系统","训推一体"],near:["arch","dist","comp","net","hpc"]},
  {k:"db",L:"apps",t:"数据库系统",en:"Database Systems",
   one:"让数据被高效、正确地存储、查询和更新。",
