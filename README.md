@@ -119,5 +119,5 @@ git push github-pages main
 - 输出目录：`dist`
 - Node.js：20+
 
-- `BoyJiang2/Boy-website`（`origin` remote）的 `main` 分支更新后自动部署到 Cloudflare；`ASTRO_SITE` 默认是 `https://boy-website.boyjiang2.workers.dev`。
+- `BoyJiang2/Boy-website`（`origin` remote）的 `main` 分支更新后自动部署到 Cloudflare，网站使用自定义域名 `https://boyjiang.com`（Worker 默认地址为 `boy-website.boyjiang2.workers.dev`）；`ASTRO_SITE` 默认是 `https://boyjiang.com`。
 - `BoyJiang2/boyJiang2.github.io`（`github-pages` remote）由 `.github/workflows/deploy.yml` 部署；该工作流只在此仓库运行，使用 `main` 分支和 `ASTRO_SITE=https://boyjiang2.github.io`。
