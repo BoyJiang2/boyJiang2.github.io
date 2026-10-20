@@ -23,23 +23,23 @@ const tree = [{
 ---
 
 <BaseLayout title={`${entry.data.title} — Boy Jiang`} description={entry.data.summary}>
-  <article class="article-wrap reading-article">
+  <article class:list={['article-wrap', entry.data.wide ? 'interactive-article' : 'reading-article']}>
     <a class="article-back" href="/blogs/">← 返回博客</a>
     <header class="article-header">
       <h1>{entry.data.title}</h1>
       <p>{entry.data.summary}</p>
       <div class="article-byline">
         {entry.data.tags.length > 0 && <span>{entry.data.tags.join(' · ')}</span>}
-        <span>{wordCount} 字</span>
+        {!entry.data.wide && <span>{wordCount} 字</span>}
       </div>
     </header>
-    <div class="reading-layout">
+    {entry.data.wide ? <Content /> : <div class="reading-layout">
       <ArticleIndex
         collectionLabel="浏览全部博客"
         tree={tree}
         headings={headings}
       />
       <div class="prose"><Content /></div>
-    </div>
+    </div>}
   </article>
 </BaseLayout>

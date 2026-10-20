@@ -1,0 +1,293 @@
+---
+import { atlasAreas, atlasLayers } from '../data/knowledge-atlas';
+
+const initial = atlasAreas.find((area) => area.k === 'mlsys')!;
+const ordered = ['hw', 'sw', 'scale', 'apps', 'rail'].flatMap((layer) => atlasAreas.filter((area) => area.L === layer));
+const numberOf = (key: string) => String(ordered.findIndex((area) => area.k === key) + 1).padStart(2, '0');
+const conferences = new Map<string, { tier: string; count: number }>();
+atlasAreas.forEach((area) => area.confs.forEach(([name, tier]) => {
+  const conference = conferences.get(name);
+  conferences.set(name, { tier, count: (conference?.count ?? 0) + 1 });
+}));
+const tiers = ['A', 'B', 'C', '—'];
+---
+
+<div class="knowledge-atlas" data-knowledge-atlas>
+  <div class="atlas-intro">
+    <p class="atlas-eyebrow">Architecture & Systems · 15 Directions</p>
+    <p>把整个领域当成一块芯片来看：四层系统栈从硬件延伸到应用，右侧三个横切方向贯穿全栈。点击模块探索研究内容和相邻方向，也可以按会议名称反查。</p>
+  </div>
+
+  <div class="atlas-search">
+    <label for="atlas-conference-query">按会议反查</label>
+    <input id="atlas-conference-query" type="search" placeholder="输入会议名，如 OSDI" autocomplete="off" data-atlas-query />
+    <button class="atlas-clear" type="button" data-atlas-clear hidden>清除筛选</button>
+    <div class="atlas-quick" aria-label="常用会议">
+      {['OSDI', 'ASPLOS', 'NSDI', 'ISCA', 'USENIX ATC', 'EuroSys'].map((name) => <button type="button" data-atlas-quick={name}>{name}</button>)}
+    </div>
+  </div>
+  <p class="atlas-match-info" data-atlas-match role="status" aria-live="polite"></p>
+
+  <section class="atlas-die" aria-label="体系结构与系统方向版图">
+    <div class="atlas-grid">
+      <div class="atlas-layers">
+        {atlasLayers.map((layer) => <div class="atlas-layer">
+          <div class="atlas-layer-name"><b>{layer.layer}</b><span>{layer.sub}</span></div>
+          <div class="atlas-cells">
+            {atlasAreas.filter((area) => area.L === layer.id).map((area) => <button
+              type="button"
+              class:list={['atlas-cell', { 'is-selected': area.k === initial.k, 'is-near': initial.near.includes(area.k) }]}
+              data-atlas-area={area.k}
+              aria-pressed={area.k === initial.k}
+              aria-controls="atlas-detail"
+              aria-label={area.t}
+            >
+              <span class="atlas-number">{numberOf(area.k)}</span>
+              <span class="atlas-cell-title">{area.t}</span>
+              <span class="atlas-cell-conferences">{area.confs.slice(0, 2).map(([name]) => name).join(' · ')}</span>
+            </button>)}
+          </div>
+        </div>)}
+      </div>
+      <div class="atlas-railbox">
+        <div class="atlas-rails">
+          {atlasAreas.filter((area) => area.L === 'rail').map((area) => <button type="button" class="atlas-cell atlas-rail" data-atlas-area={area.k} aria-label={area.t} aria-pressed="false" aria-controls="atlas-detail">
+            <span class="atlas-number">{numberOf(area.k)}</span><span class="atlas-cell-title">{area.t}</span>
+          </button>)}
+        </div>
+        <p class="atlas-rail-caption">13–15 · 横切方向<br />贯穿全栈</p>
+      </div>
+    </div>
+    <div class="atlas-legend" aria-label="图例">
+      <span><i class="atlas-selected-key"></i>当前选中</span>
+      <span><i class="atlas-near-key"></i>紧密相邻方向</span>
+      <span><i class="atlas-match-key"></i>会议命中</span>
+    </div>
+  </section>
+
+  <noscript><p>交互探索需要启用 JavaScript；下方仍可阅读默认 MLSys 方向及会议总览。</p></noscript>
+
+  <section class="atlas-detail" id="atlas-detail" data-atlas-detail aria-live="polite" aria-atomic="true" aria-label="MLSys 方向详情">
+    <div>
+      <p class="atlas-english">{initial.en}</p>
+      <h2>{initial.t}</h2>
+      <p class="atlas-one">{initial.one}</p>
+      <h3>核心研究内容</h3>
+      <ul class="atlas-topics">{initial.topics.map((topic) => <li>{topic}</li>)}</ul>
+      <h3>当下热点</h3>
+      <div class="atlas-hot">{initial.hot.map((topic) => <span>{topic}</span>)}</div>
+    </div>
+    <div>
+      <h3>代表会议</h3>
+      <div class="atlas-confs">{initial.confs.map(([name, tier, note]) => <div class="atlas-conf">
+        <span class={`atlas-tier atlas-tier-${tier === '—' ? 'none' : tier}`}>{tier}</span>
+        <button type="button" data-atlas-conf={name}>{name}</button>
+        <span class="atlas-conf-note">{note}</span>
+      </div>)}</div>
+      <p class="atlas-caption">会议分级沿用原图谱，投稿前请以 CCF 官方目录和会议官网为准。点击会议名可反查方向。</p>
+      <h3>相邻方向</h3>
+      <div class="atlas-neighbors">{initial.near.map((key) => <button type="button" data-atlas-go={key}>{atlasAreas.find((area) => area.k === key)!.t}</button>)}</div>
+    </div>
+  </section>
+
+  <section class="atlas-catalog" aria-label="会议总览">
+    <h2>本图谱收录的会议</h2>
+    <p>共 {conferences.size} 个会议。按覆盖方向数排序，点击会议可高亮对应方向。</p>
+    {tiers.map((tier) => {
+      const names = [...conferences.entries()].filter(([, info]) => info.tier === tier).sort(([a, aInfo], [b, bInfo]) => bInfo.count - aInfo.count || a.localeCompare(b));
+      return <div class="atlas-catalog-row">
+        <h3>{tier === '—' ? '未列入' : `${tier} 类`}<small>{names.length} 个</small></h3>
+        <div class="atlas-chips">{names.map(([name, info]) => <button type="button" data-atlas-conf={name} aria-pressed="false">{name}{info.count > 1 ? ` ×${info.count}` : ''}</button>)}</div>
+      </div>;
+    })}
+    <p class="atlas-caption">这是一份个人学习图谱，方向之间的边界与会议归属并非唯一划分。</p>
+  </section>
+</div>
+
+<script>
+  import { atlasAreas } from '../data/knowledge-atlas';
+
+  const root = document.querySelector<HTMLElement>('[data-knowledge-atlas]');
+  if (root) {
+    const byKey = new Map(atlasAreas.map((area) => [area.k, area]));
+    const cards = [...root.querySelectorAll<HTMLButtonElement>('[data-atlas-area]')];
+    const input = root.querySelector<HTMLInputElement>('[data-atlas-query]')!;
+    const clear = root.querySelector<HTMLButtonElement>('[data-atlas-clear]')!;
+    const feedback = root.querySelector<HTMLElement>('[data-atlas-match]')!;
+    const detail = root.querySelector<HTMLElement>('[data-atlas-detail]')!;
+    const escape = (value: string) => value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]!));
+    const scrollBehavior = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' as const : 'smooth' as const;
+
+    const lookup = (exact = false) => {
+      const query = input.value.trim().toLowerCase();
+      const hits = atlasAreas.filter((area) => area.confs.some(([name]) => exact ? name.toLowerCase() === query : name.toLowerCase().includes(query)));
+      const hitKeys = new Set(hits.map((area) => area.k));
+      cards.forEach((card) => {
+        card.classList.toggle('is-match', !!query && hitKeys.has(card.dataset.atlasArea!));
+        card.classList.toggle('is-dim', !!query && !hitKeys.has(card.dataset.atlasArea!));
+      });
+      root.querySelectorAll<HTMLButtonElement>('[data-atlas-conf], [data-atlas-quick]').forEach((button) => {
+        const selected = !!query && (button.dataset.atlasConf ?? button.dataset.atlasQuick)?.toLowerCase() === query;
+        button.classList.toggle('is-match', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+      clear.hidden = !query;
+      feedback.textContent = !query ? '' : hits.length ? `「${input.value.trim()}」出现在 ${hits.length} 个方向：${hits.map((area) => area.t).join('、')}` : `没有找到「${input.value.trim()}」对应的会议，试试 OSDI、ISCA 或 ASPLOS。`;
+    };
+
+    const select = (key: string, scroll = false) => {
+      const area = byKey.get(key);
+      if (!area) return;
+      cards.forEach((card) => {
+        const selected = card.dataset.atlasArea === key;
+        card.classList.toggle('is-selected', selected);
+        card.classList.toggle('is-near', !selected && area.near.includes(card.dataset.atlasArea!));
+        card.setAttribute('aria-pressed', String(selected));
+      });
+      detail.setAttribute('aria-label', `${area.t} 方向详情`);
+      detail.innerHTML = `
+        <div>
+          <p class="atlas-english">${escape(area.en)}</p>
+          <h2>${escape(area.t)}</h2>
+          <p class="atlas-one">${escape(area.one)}</p>
+          <h3>核心研究内容</h3>
+          <ul class="atlas-topics">${area.topics.map((topic) => `<li>${escape(topic)}</li>`).join('')}</ul>
+          <h3>当下热点</h3>
+          <div class="atlas-hot">${area.hot.map((topic) => `<span>${escape(topic)}</span>`).join('')}</div>
+        </div>
+        <div>
+          <h3>代表会议</h3>
+          <div class="atlas-confs">${area.confs.map(([name, tier, note]) => `<div class="atlas-conf"><span class="atlas-tier atlas-tier-${tier === '—' ? 'none' : tier}">${escape(tier)}</span><button type="button" data-atlas-conf="${escape(name)}">${escape(name)}</button><span class="atlas-conf-note">${escape(note)}</span></div>`).join('')}</div>
+          <p class="atlas-caption">会议分级沿用原图谱，投稿前请以 CCF 官方目录和会议官网为准。点击会议名可反查方向。</p>
+          <h3>相邻方向</h3>
+          <div class="atlas-neighbors">${area.near.map((neighbor) => `<button type="button" data-atlas-go="${escape(neighbor)}">${escape(byKey.get(neighbor)!.t)}</button>`).join('')}</div>
+        </div>`;
+      lookup();
+      try { localStorage.setItem('boy-jiang-atlas-selection', key); } catch {}
+      if (scroll) detail.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+    };
+
+    root.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest<HTMLButtonElement>('button');
+      if (!button) return;
+      if (button.dataset.atlasArea) {
+        select(button.dataset.atlasArea, window.matchMedia('(max-width: 760px)').matches);
+      } else if (button.dataset.atlasGo) {
+        select(button.dataset.atlasGo);
+        cards.find((card) => card.dataset.atlasArea === button.dataset.atlasGo)?.focus({ preventScroll: true });
+      } else if (button.dataset.atlasConf) {
+        input.value = button.dataset.atlasConf;
+        lookup(true);
+        root.querySelector('.atlas-die')?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+      } else if (button.dataset.atlasQuick) {
+        input.value = input.value === button.dataset.atlasQuick ? '' : button.dataset.atlasQuick;
+        lookup(true);
+      }
+    });
+    input.addEventListener('input', () => lookup());
+    clear.addEventListener('click', () => { input.value = ''; lookup(); input.focus(); });
+    try {
+      const saved = localStorage.getItem('boy-jiang-atlas-selection');
+      if (saved && byKey.has(saved)) select(saved);
+    } catch {}
+  }
+</script>
+
+<style is:global>
+  .interactive-article { width: min(1180px, calc(100% - 48px)); }
+  .interactive-article .article-header { max-width: 960px; }
+  .interactive-article .article-header h1 { font-size: clamp(2rem, 4.2vw, 3.5rem); line-height: 1.3; letter-spacing: -.03em; }
+  .knowledge-atlas { --atlas-copper: #985b25; --atlas-trace: #2f6f8f; --atlas-highlight: #fff2bb; --atlas-selected: color-mix(in srgb, var(--atlas-copper) 13%, var(--surface)); --atlas-near: color-mix(in srgb, var(--atlas-trace) 11%, var(--surface)); color: var(--ink); font-family: var(--sans); line-height: 1.65; display: flex; flex-direction: column; gap: 22px; }
+  [data-theme='professional-dark'] .knowledge-atlas, [data-theme='pure-black'] .knowledge-atlas { --atlas-copper: #e3a061; --atlas-trace: #80bfdc; --atlas-highlight: #4a3f12; }
+  .knowledge-atlas p { margin: 0; }
+  .knowledge-atlas button, .knowledge-atlas input { font: inherit; }
+  .knowledge-atlas button { cursor: pointer; color: var(--ink); }
+  .knowledge-atlas button:focus-visible { outline: 2px solid var(--atlas-trace); outline-offset: 3px; }
+  .knowledge-atlas .atlas-intro { max-width: 850px; color: var(--muted); }
+  .knowledge-atlas .atlas-eyebrow { margin-bottom: 12px; color: var(--atlas-copper); font: 600 .7rem/1.5 var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+  .knowledge-atlas .atlas-search { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .knowledge-atlas .atlas-search label { font-size: .8rem; font-weight: 600; }
+  .knowledge-atlas .atlas-search input { flex: 1 1 200px; min-width: 0; max-width: 340px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font-size: .85rem; }
+  .knowledge-atlas .atlas-search input:focus { outline: 2px solid var(--atlas-trace); outline-offset: 2px; }
+  .knowledge-atlas .atlas-quick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .knowledge-atlas .atlas-quick button, .knowledge-atlas .atlas-clear { padding: 6px 9px; border: 1px dashed var(--line); border-radius: 5px; background: var(--surface); color: var(--muted); font: .73rem/1.5 var(--mono); }
+  .knowledge-atlas .atlas-quick button:hover, .knowledge-atlas .atlas-clear:hover { border-color: var(--atlas-copper); color: var(--atlas-copper); }
+  .knowledge-atlas .atlas-match-info { min-height: 1.5em; color: var(--muted); font-size: .82rem; }
+  .knowledge-atlas .atlas-die { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background-color: var(--surface-soft); background-image: linear-gradient(color-mix(in srgb, var(--line) 45%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--line) 45%, transparent) 1px, transparent 1px); background-size: 24px 24px; scroll-margin-top: 30px; }
+  .knowledge-atlas .atlas-grid { display: grid; grid-template-columns: minmax(0, 1fr) 166px; gap: 14px; }
+  .knowledge-atlas .atlas-layers { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .knowledge-atlas .atlas-layer { display: grid; grid-template-columns: 98px minmax(0, 1fr); gap: 12px; }
+  .knowledge-atlas .atlas-layer-name { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding-right: 8px; border-right: 2px solid var(--line); background: var(--surface-soft); color: var(--muted); font-size: .7rem; }
+  .knowledge-atlas .atlas-layer-name b { color: var(--ink); font: 600 .95rem/1.6 var(--serif); }
+  .knowledge-atlas .atlas-cells { display: flex; flex-wrap: wrap; gap: 8px; }
+  .knowledge-atlas .atlas-cell { flex: 1 1 140px; min-width: 0; padding: 12px; border: 1px solid var(--ink); border-radius: 4px; background: var(--surface); text-align: left; transition: transform .15s, background .15s; }
+  .knowledge-atlas .atlas-cell:hover { transform: translateY(-2px); }
+  .knowledge-atlas .atlas-number { display: block; font: .65rem/1.5 var(--mono); color: var(--muted); }
+  .knowledge-atlas .atlas-cell-title { display: block; margin-top: 3px; font-size: .95rem; font-weight: 650; }
+  .knowledge-atlas .atlas-cell-conferences { display: block; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font: .65rem/1.5 var(--mono); }
+  .knowledge-atlas .atlas-cell.is-selected { background: var(--atlas-selected); border-color: var(--atlas-copper); box-shadow: inset 0 0 0 1px var(--atlas-copper); }
+  .knowledge-atlas .atlas-cell.is-near { background: var(--atlas-near); border-color: var(--atlas-trace); }
+  .knowledge-atlas .atlas-cell.is-match { background: var(--atlas-highlight); }
+  .knowledge-atlas .atlas-cell.is-dim { opacity: .42; }
+  .knowledge-atlas .atlas-railbox { display: flex; flex-direction: column; gap: 10px; }
+  .knowledge-atlas .atlas-rails { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex: 1; }
+  .knowledge-atlas .atlas-rail { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px 4px; }
+  .knowledge-atlas .atlas-rail .atlas-cell-title { writing-mode: vertical-rl; text-orientation: upright; letter-spacing: .35em; }
+  .knowledge-atlas .atlas-rail-caption { text-align: center; color: var(--muted); font: .65rem/1.5 var(--mono); }
+  .knowledge-atlas .atlas-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; color: var(--muted); font-size: .7rem; }
+  .knowledge-atlas .atlas-legend i { display: inline-block; width: 12px; height: 12px; border: 1px solid; margin-right: 6px; vertical-align: -1px; }
+  .knowledge-atlas .atlas-selected-key { background: var(--atlas-selected); border-color: var(--atlas-copper); }
+  .knowledge-atlas .atlas-near-key { background: var(--atlas-near); border-color: var(--atlas-trace); }
+  .knowledge-atlas .atlas-match-key { background: var(--atlas-highlight); }
+  .knowledge-atlas .atlas-detail { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 36px; margin-top: 10px; padding-top: 24px; border-top: 2px solid var(--atlas-copper); scroll-margin-top: 30px; }
+  .knowledge-atlas .atlas-english { color: var(--atlas-copper); font: .73rem/1.6 var(--mono); overflow-wrap: anywhere; }
+  .knowledge-atlas .atlas-detail h2 { margin: 5px 0 10px; font: 600 clamp(1.4rem, 3vw, 2rem)/1.4 var(--serif); }
+  .knowledge-atlas .atlas-one { color: var(--body-ink); font-size: .95rem; }
+  .knowledge-atlas .atlas-detail h3 { margin: 22px 0 10px; color: var(--muted); font-size: .75rem; letter-spacing: .06em; }
+  .knowledge-atlas .atlas-topics { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; color: var(--body-ink); font-size: .85rem; }
+  .knowledge-atlas .atlas-topics li { position: relative; padding-left: 16px; }
+  .knowledge-atlas .atlas-topics li::before { content: ''; position: absolute; top: .75em; left: 0; width: 7px; height: 2px; background: var(--atlas-copper); }
+  .knowledge-atlas .atlas-hot, .knowledge-atlas .atlas-neighbors { display: flex; flex-wrap: wrap; gap: 7px; }
+  .knowledge-atlas .atlas-hot span { padding: 4px 10px; border-radius: 20px; background: var(--atlas-near); font-size: .73rem; }
+  .knowledge-atlas .atlas-neighbors button { padding: 5px 10px; border: 1px solid var(--atlas-trace); border-radius: 5px; background: var(--surface); color: var(--atlas-trace); font-size: .75rem; }
+  .knowledge-atlas .atlas-neighbors button:hover { background: var(--atlas-near); }
+  .knowledge-atlas .atlas-confs { display: flex; flex-direction: column; gap: 8px; }
+  .knowledge-atlas .atlas-conf { display: grid; grid-template-columns: 25px minmax(0, auto) minmax(0, 1fr); gap: 9px; align-items: baseline; padding-bottom: 8px; border-bottom: 1px dotted var(--line); }
+  .knowledge-atlas .atlas-conf button { padding: 0; border: 0; background: transparent; text-align: left; font: 600 .78rem/1.6 var(--mono); overflow-wrap: anywhere; }
+  .knowledge-atlas .atlas-conf button:hover { color: var(--atlas-copper); }
+  .knowledge-atlas .atlas-conf-note { color: var(--muted); font-size: .7rem; }
+  .knowledge-atlas .atlas-tier { padding: 1px 3px; border: 1px solid var(--line); border-radius: 3px; text-align: center; font: 600 .65rem/1.6 var(--mono); }
+  .knowledge-atlas .atlas-tier-A { background: var(--atlas-copper); border-color: var(--atlas-copper); color: var(--bg); }
+  .knowledge-atlas .atlas-tier-B { border-color: var(--atlas-trace); color: var(--atlas-trace); }
+  .knowledge-atlas .atlas-tier-none { border-style: dashed; color: var(--muted); }
+  .knowledge-atlas .atlas-caption { margin-top: 12px; color: var(--muted); font-size: .72rem; }
+  .knowledge-atlas .atlas-catalog { display: flex; flex-direction: column; gap: 18px; margin-top: 12px; padding-top: 26px; border-top: 1px solid var(--line); }
+  .knowledge-atlas .atlas-catalog h2 { margin: 0; font: 500 1.35rem/1.5 var(--serif); }
+  .knowledge-atlas .atlas-catalog > p { color: var(--muted); font-size: .8rem; }
+  .knowledge-atlas .atlas-catalog-row { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 12px; align-items: start; }
+  .knowledge-atlas .atlas-catalog-row h3 { margin: 3px 0 0; font-size: .8rem; }
+  .knowledge-atlas .atlas-catalog-row small { display: block; color: var(--muted); font: .7rem/1.6 var(--mono); }
+  .knowledge-atlas .atlas-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .knowledge-atlas .atlas-chips button { padding: 5px 9px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); font: .72rem/1.5 var(--mono); }
+  .knowledge-atlas .atlas-chips button:hover { border-color: var(--atlas-trace); }
+  .knowledge-atlas .atlas-chips button.is-match, .knowledge-atlas .atlas-quick button.is-match { background: var(--atlas-highlight); border-color: var(--atlas-copper); color: var(--ink); }
+  @media (max-width: 760px) {
+    .interactive-article { width: calc(100% - 30px); }
+    .knowledge-atlas .atlas-grid { grid-template-columns: minmax(0, 1fr); }
+    .knowledge-atlas .atlas-layer { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .knowledge-atlas .atlas-layer-name { flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 8px; padding-bottom: 4px; border-right: 0; border-bottom: 1px solid var(--line); }
+    .knowledge-atlas .atlas-cell { flex-basis: 125px; }
+    .knowledge-atlas .atlas-rail .atlas-cell-title { writing-mode: horizontal-tb; letter-spacing: 0; }
+    .knowledge-atlas .atlas-rail { min-height: 105px; padding: 10px 5px; }
+    .knowledge-atlas .atlas-rail .atlas-cell-title { font-size: .8rem; }
+    .knowledge-atlas .atlas-detail { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .knowledge-atlas .atlas-search input { max-width: none; }
+    .knowledge-atlas .atlas-catalog-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+    .knowledge-atlas .atlas-catalog-row small { display: inline; margin-left: 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .knowledge-atlas .atlas-cell { transition: none; }
+    .knowledge-atlas .atlas-cell:hover { transform: none; }
+  }
+</style>

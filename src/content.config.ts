@@ -12,6 +12,7 @@ const blog = defineCollection({
   schema: z.object({
     ...shared,
     published: z.boolean().default(false),
+    wide: z.boolean().default(false),
   }),
 });
 
