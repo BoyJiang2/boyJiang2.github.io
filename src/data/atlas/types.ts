@@ -1,7 +1,7 @@
 export type Tier = 'A' | 'B' | 'C' | '—';
 export type Verification = 'ok' | 'part' | 'none';
 export type Stage = 0 | 1 | 2 | 3;
-export type AreaKey = 'mlsys' | 'db' | 'edge' | 'dist' | 'hpc' | 'stor' | 'net' | 'os' | 'cloud' | 'comp' | 'arch' | 'eda' | 'sec' | 'rel' | 'energy';
+export type AreaKey = 'mlsys' | 'db' | 'edge' | 'quantum' | 'dist' | 'hpc' | 'stor' | 'net' | 'os' | 'cloud' | 'comp' | 'arch' | 'eda' | 'sec' | 'rel' | 'energy';
 export type LayerKey = 'apps' | 'scale' | 'sw' | 'hw' | 'rail';
 export type Tab = 'ov' | 'tree' | 'tools' | 'papers';
 

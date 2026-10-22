@@ -1,6 +1,7 @@
 import { mlsys } from './areas/mlsys';
 import { db } from './areas/db';
 import { edge } from './areas/edge';
+import { quantum } from './areas/quantum';
 import { dist } from './areas/dist';
 import { hpc } from './areas/hpc';
 import { stor } from './areas/stor';
@@ -21,12 +22,12 @@ export { DEFAULT_AREA } from './display';
 export { tools } from './tools';
 export { journalTiers, verificationBadges, stageNames } from './venues';
 
-export const areas: Area[] = [mlsys, db, edge, dist, hpc, stor, net, os, cloud, comp, arch, eda, sec, rel, energy];
+export const areas: Area[] = [mlsys, db, edge, quantum, dist, hpc, stor, net, os, cloud, comp, arch, eda, sec, rel, energy];
 export const areaByKey = Object.fromEntries(areas.map(area => [area.key, area])) as Record<AreaKey, Area>;
 export const paperById = new Map<string, Paper>();
 export const paperArea = new Map<string, AreaKey>();
 // Preserve the original document's DD order: it determines the default owner for cross-area tool references.
-const detailOrder: Area[] = [arch, eda, os, cloud, comp, dist, hpc, stor, net, sec, rel, energy, mlsys, db, edge];
+const detailOrder: Area[] = [arch, eda, os, cloud, comp, dist, hpc, stor, net, sec, rel, energy, mlsys, db, edge, quantum];
 export const toolAreas = new Map(Object.keys(tools).map(id => [id, detailOrder.filter(area => area.toolRefs.some(ref => ref.tool === id)).map(area => area.key)]));
 const numberingOrder: LayerKey[] = ['hw', 'sw', 'scale', 'apps', 'rail'];
 export const cellNumbers = Object.fromEntries(numberingOrder.flatMap(layer => areas.filter(area => area.layer === layer)).map((area, index) => [area.key, String(index + 1).padStart(2, '0')])) as Record<AreaKey, string>;
