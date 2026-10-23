@@ -1,9 +1,8 @@
 ---
 import { areas } from '../../data/atlas';
-const railCount = areas.filter(area => area.layer === 'rail').length;
 ---
 
 <header class="atlas-intro">
   <p class="eyebrow">Architecture &amp; Systems · {areas.length} Directions</p>
-  <p>把整个领域当成一块芯片来看：自下而上是四层系统栈，右侧三根"电源轨"是贯穿每一层的横切方向（{areas.length - railCount} 个分层方向 + {railCount} 个横切方向 = {areas.length}）。点任意模块看它研究什么、去哪些会议投稿（标注 CCF 等级）、和谁是邻居。每个方向都有研究树、工具与方法、论文路线三个标签页。</p>
+  <p>把整个体系结构与系统的领域当成一块芯片来看：自下而上是四层系统栈，右侧三根轨道是贯穿每一层的横切方向。任意模块都有对应的相近方向。本网站大致统计了对应方向的会议投稿建议和相邻方向。每个方向都有研究树、工具与方法、论文路线三个标签页供大家参考。</p>
 </header>
