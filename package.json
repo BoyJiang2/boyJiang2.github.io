@@ -3,12 +3,15 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "workspaces": ["tools/llm-inference-calculator"],
+  "engines": { "node": "^22.19.0 || ^24.0.0 || >=26.0.0" },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build --force",
+    "build": "npm test && astro build --force && npm run ui:build --workspace tools/llm-inference-calculator && npm run test:tools",
     "preview": "astro preview",
     "check": "astro check",
-    "test": "node --test tests/remark-display-math.test.mjs"
+    "test": "node --test tests/remark-display-math.test.mjs && npm test --workspace tools/llm-inference-calculator",
+    "test:tools": "node --test tests/tools-build.test.mjs"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.11",

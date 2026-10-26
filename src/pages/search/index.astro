@@ -3,12 +3,20 @@ import { blogHref, getPublishedBlogs, getPublishedNotes, getPublishedProjects, n
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getNoteLocation } from '../../utils/notes';
 import { toSearchText } from '../../utils/search';
+import { tools } from '../../config/tools';
 
 const blogs = await getPublishedBlogs();
 const projects = await getPublishedProjects();
 const notes = await getPublishedNotes();
 
 const items = [
+  ...tools.map((tool) => ({
+    ...tool,
+    kind: '工具',
+    icon: '◇',
+    detail: '',
+    search: [tool.title, tool.summary, ...tool.tags].join(' ').toLowerCase(),
+  })),
   ...blogs.map((entry) => ({
     title: entry.data.title,
     summary: entry.data.summary,
@@ -42,10 +50,10 @@ const items = [
 ].sort((a, b) => a.kind.localeCompare(b.kind, 'zh-CN') || a.title.localeCompare(b.title, 'zh-CN'));
 ---
 
-<BaseLayout title="搜索 — Boy Jiang" description="搜索博客、项目和笔记。">
+<BaseLayout title="搜索 — Boy Jiang" description="搜索博客、项目、笔记和工具。">
   <section class="content-shell shell search-page">
     <form class="global-search" id="global-search-form" role="search">
-      <input id="global-search-input" type="search" aria-label="搜索全站内容" placeholder="搜索博客、项目和笔记…" autocomplete="off" autofocus />
+      <input id="global-search-input" type="search" aria-label="搜索全站内容" placeholder="搜索博客、项目、笔记和工具…" autocomplete="off" autofocus />
     </form>
     <div class="search-results" id="global-search-results" hidden>
       {items.map((item) => (
