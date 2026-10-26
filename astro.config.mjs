@@ -3,8 +3,9 @@ import mdx from '@astrojs/mdx';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import remarkStrongInlineCode from './src/utils/remark-strong-inline-code.mjs';
+import remarkDisplayMath from './src/utils/remark-display-math.mjs';
 
-const remarkPlugins = [remarkMath, remarkStrongInlineCode];
+const remarkPlugins = [remarkMath, remarkDisplayMath, remarkStrongInlineCode];
 
 export default defineConfig({
   site: process.env.ASTRO_SITE ?? 'https://boyjiang.com',
