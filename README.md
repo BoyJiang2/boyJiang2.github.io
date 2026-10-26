@@ -26,6 +26,8 @@ LLM 推理计算器的源码保存在 `tools/llm-inference-calculator/`，保留
 `npm ci` 会安装网站和工具的依赖；`npm run build` 先运行测试、构建 Astro，再把计算器输出到 `dist/tools/llm-inference-calculator/`，最后自动校验工具页面与静态资源。两个远端沿用同一个构建命令。
 `npm test` 包含公式测试与计算器测试。单独调试计算器可运行 `npm run dev --workspace tools/llm-inference-calculator`；验证完整站点请先构建，再运行 `npm run preview`。
 
+Cloudflare 通过根目录的 `wrangler.json` 将合并后的 `dist` 部署为 `boy-website` 的静态资源，避免 workspace 根目录的应用自动识别歧义；域名仍沿用控制台配置。GitHub Pages 继续发布同一份 `dist`。
+
 后续修改原计算器目录不会自动更新网站：需要明确同步到此 workspace、测试并提交。站内搜索只收录工具标题、简介和标签，不收录计算器内部模型数据。
 
 ## 写内容

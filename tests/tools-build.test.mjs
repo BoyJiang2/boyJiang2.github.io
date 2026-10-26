@@ -31,16 +31,30 @@ test('calculator has a standalone entry and deployable subpath assets', () => {
   assert(!html.includes('<iframe'));
 });
 
-test('calculator includes return navigation and attribution, without Vercel tracking', () => {
+test('calculator keeps return navigation without GitHub promotion or Vercel tracking', () => {
   const assets = new URL(`${toolPath.slice(1)}assets/`, dist);
   const scripts = fs.readdirSync(assets).filter(file => path.extname(file) === '.js')
     .map(file => fs.readFileSync(new URL(file, assets), 'utf8')).join('\n');
   assert(scripts.includes('/tools/'));
   assert(scripts.includes('tool-breadcrumb'));
   assert(scripts.includes('工具导航'));
-  assert(scripts.includes('https://github.com/pochenai/llm-inference-calculator'));
+  assert(!scripts.includes('github.com/pochenai/llm-inference-calculator'));
+  assert(!scripts.includes('Please⭐'));
+  assert(!scripts.includes('please star'));
+  const notice = fs.readFileSync(new URL('../tools/llm-inference-calculator/NOTICE.md', import.meta.url), 'utf8');
+  assert(notice.includes('https://github.com/pochenai/llm-inference-calculator'));
   assert(!scripts.includes('/_vercel/'));
   assert(!scripts.includes('va.vercel-scripts.com'));
+});
+
+test('Cloudflare has an explicit assets-only configuration for the combined build', () => {
+  const config = JSON.parse(fs.readFileSync(new URL('../wrangler.json', import.meta.url), 'utf8'));
+  assert.equal(config.name, 'boy-website');
+  assert.equal(config.assets.directory, './dist');
+  assert(!config.assets.binding, 'assets-only Workers cannot declare a script binding');
+  assert(!config.main);
+  assert(!config.routes, 'existing dashboard domain configuration must stay unmanaged');
+  assert(config.compatibility_date);
 });
 
 test('site search indexes calculator metadata without its internal data catalog', () => {

@@ -39,21 +39,6 @@ function ResultActions({ model, gpu, r }: { model: ModelSpec; gpu: GpuSpec; r: E
 
   return (
     <div className="result-actions card">
-      <div className="result-support">
-        <span aria-hidden="true">⭐</span>
-        <div>
-          <strong>{t('github_cta.title')}</strong>
-          <p>{t('github_cta.description')}</p>
-        </div>
-        <a
-          className="btn result-star-link"
-          href="https://github.com/pochenai/llm-inference-calculator"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {t('github_cta.star')}
-        </a>
-      </div>
       <div className="result-share">
         <button type="button" className="btn" onClick={() => void copyText(window.location.href, 'link')}>
           {copied === 'link' ? t('share.copied') : t('share.copy_link')}

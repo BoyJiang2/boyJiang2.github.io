@@ -87,34 +87,7 @@ body {
   gap: 12px;
 }
 
-/* GitHub link in the right-aligned header group */
-.gh-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 12.5px;
-  padding: 2px 6px;
-  border-radius: 6px;
-  transition: color 0.15s ease, background-color 0.15s ease;
-}
-
-.gh-link:hover {
-  color: var(--fg);
-  background-color: var(--hover, rgba(0, 0, 0, 0.05));
-}
-
-.gh-icon {
-  display: block;
-  flex-shrink: 0;
-}
-
-.gh-text {
-  line-height: 1;
-}
-
-/* Locale selector — pushed to the right, gh-link follows */
+/* Locale selector */
 .locale-select {
   padding: 2px 6px;
   border: 1px solid var(--border-strong);
@@ -873,36 +846,10 @@ input[type='range'] {
   padding: 12px 14px;
 }
 
-.result-support,
 .result-share {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.result-support > span {
-  font-size: 20px;
-}
-
-.result-support > div {
-  flex: 1;
-  min-width: 0;
-}
-
-.result-support p {
-  margin: 2px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.result-star-link {
-  flex-shrink: 0;
-  text-decoration: none;
-}
-
-.result-share {
-  border-top: 1px solid var(--border);
-  padding-top: 10px;
 }
 
 .result-share-hint {
@@ -912,15 +859,6 @@ input[type='range'] {
 }
 
 @media (max-width: 520px) {
-  .result-support {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .result-star-link {
-    margin-left: 30px;
-  }
-
 .result-share .btn {
     flex: 1;
     padding-inline: 7px;
