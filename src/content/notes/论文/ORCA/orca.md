@@ -8,7 +8,7 @@ tags: [LLM Serving, Continuous Batching, Scheduling, KV Cache, Distributed Syste
 
 # 论文链接
 
-https://www\.usenix\.org/system/files/osdi22\-yu\.pdf
+[ORCA 论文 PDF（USENIX）](https://www.usenix.org/system/files/osdi22-yu.pdf)
 
 # GPT的简要回顾
 
