@@ -18,15 +18,11 @@ export function buildNoteTree(entries: CollectionEntry<'notes'>[], currentId: st
   const categories = [...new Set(located.map(({ location }) => location.category))];
   return categories.map((category) => {
     const categoryEntries = located.filter(({ location }) => location.category === category);
-    const seriesNames = [...new Set(categoryEntries.map(({ location }) => location.series))];
-    const children = seriesNames.map((series) => {
-      const items = categoryEntries.filter(({ location }) => location.series === series).map(({ entry }) => ({
-        label: entry.data.title,
-        href: noteHref(entry),
-        current: entry.id === currentId,
-      }));
-      return { label: series, children: items, open: items.some((item) => item.current) };
-    });
+    const children = categoryEntries.map(({ entry }) => ({
+      label: entry.data.title,
+      href: noteHref(entry),
+      current: entry.id === currentId,
+    }));
     return { label: category, icon: categoryIcons[category] ?? '•', children, open: category === currentLocation?.category };
   });
 }

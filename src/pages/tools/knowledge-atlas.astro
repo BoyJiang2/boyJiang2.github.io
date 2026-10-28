@@ -1,0 +1,13 @@
+---
+import { getEntry } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import KnowledgeAtlas from '../../components/KnowledgeAtlas.astro';
+
+const entry = await getEntry('blog', 'knowledge-atlas');
+if (!entry) throw new Error('Missing knowledge atlas content');
+const { title, summary, tags } = entry.data;
+---
+
+<ArticleLayout documentTitle={`${title} — Boy Jiang`} description={summary} title={title} summary={summary} backHref="/tools/" backLabel="← 返回工具" tags={tags} variant="wide">
+  <KnowledgeAtlas />
+</ArticleLayout>

@@ -7,6 +7,30 @@ const dist = new URL('../dist/', import.meta.url);
 const read = file => fs.readFileSync(new URL(file, dist), 'utf8');
 const toolPath = '/tools/llm-inference-calculator/';
 
+test('knowledge atlas belongs to tools with old blog links preserved', () => {
+  const href = '/tools/knowledge-atlas/';
+  assert(read('tools/index.html').includes(`href="${href}"`));
+  assert(read('tools/index.html').includes('page-title-icon'));
+  assert(!read('blogs/index.html').includes('知识图谱：体系结构与系统'));
+  const page = read('tools/knowledge-atlas/index.html');
+  assert(page.includes('data-knowledge-atlas'));
+  assert(page.includes('← 返回工具'));
+  for (const folder of ['blog', 'blogs']) {
+    assert(read(`${folder}/knowledge-atlas/index.html`).includes(href));
+  }
+  const search = read('search/index.html');
+  assert(search.includes(`href="${href}"`));
+  assert(!search.includes('href="/blogs/knowledge-atlas/"'));
+});
+
+test('ORCA removes stray diagram labels and notes have no duplicate folder level', () => {
+  const page = read('notes/orca/index.html');
+  assert(!page.includes('Decode x1 x2'));
+  assert(!page.includes('Prefill x3 x4'));
+  assert(!/<summary>\s*<span>ORCA<\/span>/.test(page));
+  assert(!/<summary>\s*<span>并行集群部署<\/span>/.test(page));
+});
+
 test('tools navigation and directory use the existing site layout', () => {
   for (const file of ['index.html', 'blogs/index.html', 'notes/index.html', 'tools/index.html']) {
     const html = read(file);

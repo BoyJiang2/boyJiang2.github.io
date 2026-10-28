@@ -6,7 +6,7 @@ export { noteHref } from './notes';
 export const PUBLIC_NOTE_CATEGORIES = ['论文'];
 
 export async function getPublishedBlogs() {
-  return (await getCollection('blog', ({ data }) => data.published))
+  return (await getCollection('blog', ({ id, data }) => data.published && id !== 'knowledge-atlas'))
     .sort((a, b) => a.data.title.localeCompare(b.data.title, 'zh-CN'));
 }
 

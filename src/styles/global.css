@@ -281,7 +281,7 @@ img { max-width: 100%; height: auto; }
 .plain-article-layout { display: grid; grid-template-columns: minmax(0, 710px); justify-content: center; }
 .reading-layout { display: grid; grid-template-columns: minmax(210px, 1fr) minmax(0, 960px) minmax(210px, 1fr); gap: 56px; align-items: start; }
 .article-index-rail { position: sticky; top: 38px; width: min(100%, 320px); justify-self: start; }
-.article-index { max-height: calc(100vh - 114px); overflow: auto; padding: 0 8px 0 0; background: transparent; font-family: SimSun, 'Songti SC', STSong, var(--serif); font-size: .9rem; scrollbar-width: thin; }
+.article-index { max-height: calc(100vh - 114px); overflow: auto; padding: 0 8px 0 0; background: transparent; font-family: var(--sans); font-size: .9rem; scrollbar-width: thin; }
 .article-index-toggle { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; margin: 0 0 10px; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--accent); cursor: pointer; transition: background .18s ease, color .18s ease; }
 .article-index-toggle:hover, .article-index-toggle:focus-visible { background: var(--accent-soft); color: var(--accent-hover); outline: none; }
 .article-index-toggle svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
